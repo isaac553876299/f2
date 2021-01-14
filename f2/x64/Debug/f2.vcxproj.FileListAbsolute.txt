@@ -1,0 +1,2 @@
+C:\Users\Usuario\Documents\GitHub\f2\f2\x64\Debug\f2.exe
+C:\Users\Usuario\Documents\GitHub\f2\f2\x64\Debug\f2.pdb
