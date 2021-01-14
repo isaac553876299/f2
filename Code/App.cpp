@@ -13,7 +13,7 @@ public:
 
 	//KeyStates::IDLE_0,DOWN_1,REPEAT_2,UP_3
 	mouse _mouse{ 0,0,0,0,0,0 };
-	int keyboard[300];
+	int keyboard[200];
 	//=========================================================================================
 	Physics physicsBox;
 	//=========================================================================================
@@ -58,6 +58,17 @@ public:
 
 		const Uint8* keyboardState = SDL_GetKeyboardState(0);
 		if (keyboardState[SDL_SCANCODE_ESCAPE]) quit = true;
+		
+		for (int i = 0; i < 200; i++)
+		{
+			if (keyboard[i] == 3) keyboard[i] == 0;
+			if (keyboardState[i])
+			{
+				if (keyboard[i] == 0|| keyboard[i] == 3) keyboard[i] = 1;
+				if (keyboard[i] == 1) keyboard[i] = 2;
+			}
+			if (!keyboardState[i]) keyboard[i] = 3;
+		}
 	}
 
 	void Update()
@@ -67,8 +78,8 @@ public:
 		physicsBox.Update(dt);
 		//=========================================================================================
 		static char title[256];
-		sprintf_s(title, 256, "mouse{%d,%d,%d,%d} // dt(%d) fps(%d)",
-			_mouse.x, _mouse.y, _mouse.stateL, _mouse.stateR, dt, fps);
+		sprintf_s(title, 256, "mouse{%d,%d,%d,%d} // dt(%d) fps(%d) %d",
+			_mouse.x, _mouse.y, _mouse.stateL, _mouse.stateR, dt, fps, keyboard[SDL_SCANCODE_A]);
 		SDL_SetWindowTitle(window, title);
 	}
 

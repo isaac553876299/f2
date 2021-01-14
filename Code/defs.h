@@ -14,6 +14,6 @@ struct mouse { int x, y, offsx, offsy, stateL, stateR; };
 struct point { int a, b; };
 struct rect { int a, b, c, d; };
 
-//inline bool PointInRect(point p, rect r) { return (p.a > r.a && p.a < r.a + r.c && p.b > r.b && p.b < r.b + r.d); }
+inline bool PointInRect(point p, rect r) { return (p.a > r.a && p.a < r.a + r.c && p.b > r.b && p.b < r.b + r.d); }
 
 #endif
