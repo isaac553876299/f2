@@ -1,8 +1,16 @@
-#include <iostream>
-#include "../SDL2-2.0.14/include/SDL.h"
+#include "defs.h"
+#include "App.cpp"
 
 int main(int argc, char** argv)
 {
-
+	App* game = new App;
+	while (!game->quit)
+	{
+		game->Input();
+		game->Update();
+		game->Draw();
+	}
+	delete game;
+	game = nullptr;
 	return 0;
 }
