@@ -1,3 +1,6 @@
+#ifndef _PHYSICS_H_
+#define _PHYSICS_H_
+
 #include "defs.h"
 
 struct spaceship { rect rect; float x, y, angle, speed; };
@@ -18,28 +21,28 @@ public:
 
 	}
 
-	void Input(mouse _mouse)
+	void Input(mouse _mouse, int* _keyboard)
 	{
-		/*if (keys[SDL_SCANCODE_LEFT]) player.angle -= 1.0f;
-		if (keys[SDL_SCANCODE_RIGHT]) player.angle += 1.0f;
+		if (_keyboard[SDL_SCANCODE_LEFT]) player.angle -= 1.0f;
+		if (_keyboard[SDL_SCANCODE_RIGHT]) player.angle += 1.0f;
 
-		if (keys[SDL_SCANCODE_UP]) player.speed += 0.01f;
-		if (keys[SDL_SCANCODE_DOWN]) player.speed -= 0.01f;
+		if (_keyboard[SDL_SCANCODE_UP]) player.speed += 0.01f;
+		if (_keyboard[SDL_SCANCODE_DOWN]) player.speed -= 0.01f;
 
-		if (keys[SDL_SCANCODE_R])
+		if (_keyboard[SDL_SCANCODE_R])
 		{
 			player.rect = { 100,100,100,100 };
 			player.x = 100;
 			player.y = 100;
 			player.angle = 0;
 			player.speed = 0;
-		}*/
+		}
 	}
 
 	void Update(float dt)
 	{
-		player.x += player.speed * cos(RAD(player.angle));
-		player.y += player.speed * sin(RAD(player.angle));
+		player.x += (player.speed * cos(RAD(player.angle))) * dt;
+		player.y += (player.speed * sin(RAD(player.angle))) * dt;
 
 		player.rect.a = player.x;
 		player.rect.b = player.y;
@@ -60,3 +63,5 @@ public:
 		SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
 	}
 };
+
+#endif
