@@ -1,2 +1,4 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+[Dd]ebug/
+[Rr]elease/
+.vs/
+x64/
