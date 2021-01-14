@@ -1,5 +1,4 @@
 #include "defs.h"
-#include "App.cpp"
 
 struct spaceship { rect rect; float x, y, angle, speed; };
 
@@ -19,7 +18,7 @@ public:
 
 	}
 
-	void Input()
+	void Input(mouse _mouse)
 	{
 		if (keys[SDL_SCANCODE_LEFT]) player.angle -= 1.0f;
 		if (keys[SDL_SCANCODE_RIGHT]) player.angle += 1.0f;
