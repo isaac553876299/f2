@@ -1,3 +1,5 @@
+#ifndef _DEFS_H_
+#define _DEFS_H_
 #include <iostream>
 #include "../SDL2-2.0.14/include/SDL.h"
 
@@ -12,7 +14,6 @@ struct mouse { int x, y, offsx, offsy, stateL, stateR; };
 struct point { int a, b; };
 struct rect { int a, b, c, d; };
 
-bool PointInRect(point p, rect r)
-{
-	return (p.a > r.a && p.a < r.a + r.c && p.b > r.b && p.b < r.b + r.d);
-}
+//inline bool PointInRect(point p, rect r) { return (p.a > r.a && p.a < r.a + r.c && p.b > r.b && p.b < r.b + r.d); }
+
+#endif

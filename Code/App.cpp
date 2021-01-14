@@ -13,6 +13,7 @@ public:
 
 	//KeyStates::IDLE_0,DOWN_1,REPEAT_2,UP_3
 	mouse _mouse{ 0,0,0,0,0,0 };
+	int keyboard[300];
 	//=========================================================================================
 	Physics physicsBox;
 	//=========================================================================================
@@ -21,7 +22,9 @@ public:
 		SDL_Init(SDL_INIT_VIDEO);
 		SDL_CreateWindowAndRenderer(WW, WH, 0, &window, &renderer);
 
-
+		//for (auto i : keyboard) printf("%d", i);
+		for (auto i : keyboard) i = 0;
+		//for (auto i : keyboard) printf("%d", i);
 	}
 
 	~App()

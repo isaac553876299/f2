@@ -20,7 +20,7 @@ public:
 
 	void Input(mouse _mouse)
 	{
-		if (keys[SDL_SCANCODE_LEFT]) player.angle -= 1.0f;
+		/*if (keys[SDL_SCANCODE_LEFT]) player.angle -= 1.0f;
 		if (keys[SDL_SCANCODE_RIGHT]) player.angle += 1.0f;
 
 		if (keys[SDL_SCANCODE_UP]) player.speed += 0.01f;
@@ -33,7 +33,7 @@ public:
 			player.y = 100;
 			player.angle = 0;
 			player.speed = 0;
-		}
+		}*/
 	}
 
 	void Update(float dt)
