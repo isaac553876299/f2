@@ -12,14 +12,14 @@ public:
 	SDL_Renderer* renderer = nullptr;
 
 	float dt;
-	timer _timer;
+	Timer timer;
 
 	Uint32 seconds;
 	int fpsCount;
 	int fps;
 
 	//KeyStates::IDLE_0,DOWN_1,REPEAT_2,UP_3
-	mouse _mouse;
+	Mouse mouse;
 	int keyboard[200];
 
 	//=========================================================================================
@@ -31,7 +31,7 @@ public:
 		SDL_Init(SDL_INIT_VIDEO);
 		SDL_CreateWindowAndRenderer(WW, WH, 0, &window, &renderer);
 
-		_mouse = { 0,0,0,0,0,0 };
+		mouse = { 0,0,0,0,0,0 };
 
 		for (auto i : keyboard) i = 0;
 		for (int i = 0; i < 200; i++) keyboard[i] = 0;
@@ -48,12 +48,12 @@ public:
 
 	void Input()
 	{
-		if (_mouse.stateL == 1) _mouse.stateL = 2;
-		if (_mouse.stateR == 1) _mouse.stateR = 2;
-		if (_mouse.stateL == 3) _mouse.stateL = 0;
-		if (_mouse.stateR == 3) _mouse.stateR = 0;
+		if (mouse.stateL == 1) mouse.stateL = 2;
+		if (mouse.stateR == 1) mouse.stateR = 2;
+		if (mouse.stateL == 3) mouse.stateL = 0;
+		if (mouse.stateR == 3) mouse.stateR = 0;
 
-		SDL_GetMouseState(&_mouse.x, &_mouse.y);
+		SDL_GetMouseState(&mouse.x, &mouse.y);
 
 		SDL_Event event;
 		while (SDL_PollEvent(&event))
@@ -61,12 +61,12 @@ public:
 			{
 			case SDL_QUIT: quit = true; break;
 			case SDL_MOUSEBUTTONDOWN:
-				if (event.button.button == SDL_BUTTON_LEFT) _mouse.stateL = 1;
-				if (event.button.button == SDL_BUTTON_RIGHT) _mouse.stateR = 1;
+				if (event.button.button == SDL_BUTTON_LEFT) mouse.stateL = 1;
+				if (event.button.button == SDL_BUTTON_RIGHT) mouse.stateR = 1;
 				break;
 			case SDL_MOUSEBUTTONUP:
-				if (event.button.button == SDL_BUTTON_LEFT) _mouse.stateL = 3;
-				if (event.button.button == SDL_BUTTON_RIGHT) _mouse.stateR = 3;
+				if (event.button.button == SDL_BUTTON_LEFT) mouse.stateL = 3;
+				if (event.button.button == SDL_BUTTON_RIGHT) mouse.stateR = 3;
 				break;
 			}
 
@@ -87,8 +87,9 @@ public:
 
 	void Update()
 	{
-		dt = _timer.sRead();
-		_timer.Start();
+		dt = timer.sRead();
+		timer.Start();
+		if (_dt - dt > 0) SDL_Delay(_dt - dt);
 
 		fpsCount++;
 		if (SDL_GetTicks() - seconds > 1000)
@@ -99,19 +100,14 @@ public:
 		}
 
 		//=========================================================================================
-		physicsBox.Input(_mouse, keyboard);
+		physicsBox.Input(mouse, keyboard);
 		physicsBox.Update(dt);
 		//=========================================================================================
 
 		static char title[256];
 		sprintf_s(title, 256, "fps(%d) | mouse{%d,%d,%d,%d}",
-			fps, _mouse.x, _mouse.y, _mouse.stateL, _mouse.stateR);
+			fps, mouse.x, mouse.y, mouse.stateL, mouse.stateR);
 		SDL_SetWindowTitle(window, title);
-		if ((1000 / FPS) - dt > 0)
-		{
-			float delay = ((1000 / FPS) - dt);
-			SDL_Delay(delay);
-		}
 	}
 
 	void Draw()

@@ -3,7 +3,7 @@
 
 #include "defs.h"
 
-struct spaceship { rect rect; float x, y, angle, speed; };
+struct spaceship { Rect rect; float x, y, angle, speed; };
 
 class Physics
 {
@@ -21,13 +21,13 @@ public:
 
 	}
 
-	void Input(mouse _mouse, int* _keyboard)
+	void Input(Mouse _mouse, int* _keyboard)
 	{
-		if (_keyboard[SDL_SCANCODE_LEFT]) player.angle -= 1.0f;
-		if (_keyboard[SDL_SCANCODE_RIGHT]) player.angle += 1.0f;
+		if (_keyboard[SDL_SCANCODE_LEFT]) player.angle -= 1.0;
+		if (_keyboard[SDL_SCANCODE_RIGHT]) player.angle += 1.0;
 
-		if (_keyboard[SDL_SCANCODE_UP]) player.speed += 0.01f;
-		if (_keyboard[SDL_SCANCODE_DOWN]) player.speed -= 0.01f;
+		if (_keyboard[SDL_SCANCODE_UP]) player.speed += 1.0;
+		if (_keyboard[SDL_SCANCODE_DOWN]) player.speed -= 1.0;
 
 		if (_keyboard[SDL_SCANCODE_R]) player = { {100,100,100,100},100,100,0,0 };
 	}
