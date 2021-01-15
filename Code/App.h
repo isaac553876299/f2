@@ -29,7 +29,8 @@ public:
 	App()
 	{
 		SDL_Init(SDL_INIT_VIDEO);
-		SDL_CreateWindowAndRenderer(WW, WH, 0, &window, &renderer);
+		window = SDL_CreateWindow("Physics Box", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
+		renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED/*);//*/ | SDL_RENDERER_PRESENTVSYNC);
 
 		mouse = { 0,0,0,0,0,0 };
 
@@ -89,7 +90,7 @@ public:
 	{
 		dt = timer.sRead();
 		timer.Start();
-		if (_dt - dt > 0) SDL_Delay(_dt - dt);
+		//if (_dt - dt > 0) SDL_Delay(_dt - dt);
 
 		fpsCount++;
 		if (SDL_GetTicks() - seconds > 1000)
@@ -105,8 +106,8 @@ public:
 		//=========================================================================================
 
 		static char title[256];
-		sprintf_s(title, 256, "fps(%d) | mouse{%d,%d,%d,%d}",
-			fps, mouse.x, mouse.y, mouse.stateL, mouse.stateR);
+		sprintf_s(title, 256, "fps(%d) | mouse{%d,%d,%d,%d} player{%.1f,%.1f,%.1f,%.1f}",
+			fps, mouse.x, mouse.y, mouse.stateL, mouse.stateR, physicsBox.player.x, physicsBox.player.y, physicsBox.player.angle, physicsBox.player.speed);
 		SDL_SetWindowTitle(window, title);
 	}
 

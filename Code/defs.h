@@ -7,8 +7,9 @@
 #define _dt (1000/FPS)/1000
 //dt_30_60_120_144{0.0333,0.0167,0.0083,0.00694}
 
-#define WW 1280
-#define WH 720
+#define WINDOW_WIDTH 1280
+#define WINDOW_HEIGHT 720
+
 #define RAD(a) (a*3.14/180)
 
 #define RELEASE(x) { delete x; x = nullptr; }

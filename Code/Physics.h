@@ -26,8 +26,8 @@ public:
 		if (_keyboard[SDL_SCANCODE_LEFT]) player.angle -= 1.0;
 		if (_keyboard[SDL_SCANCODE_RIGHT]) player.angle += 1.0;
 
-		if (_keyboard[SDL_SCANCODE_UP]) player.speed += 1.0;
-		if (_keyboard[SDL_SCANCODE_DOWN]) player.speed -= 1.0;
+		if (_keyboard[SDL_SCANCODE_UP]) player.speed += 0.1;
+		if (_keyboard[SDL_SCANCODE_DOWN]) player.speed -= 0.1;
 
 		if (_keyboard[SDL_SCANCODE_R]) player = { {100,100,100,100},100,100,0,0 };
 	}
