@@ -21,13 +21,18 @@ public:
 
 	}
 
-	void Input(Mouse _mouse, int* _keyboard)
+	void Update(float dt, Mouse _mouse, int* _keyboard)
 	{
-		if (_keyboard[SDL_SCANCODE_LEFT]) player.angle -= 1.0;
-		if (_keyboard[SDL_SCANCODE_RIGHT]) player.angle += 1.0;
+		//=====FIX=====
+		dt = 0.006944f;
+		//=====FIX=====
 
-		if (_keyboard[SDL_SCANCODE_UP]) player.speed += 0.1;
-		if (_keyboard[SDL_SCANCODE_DOWN]) player.speed -= 0.1;
+		float angle_i = 100.0f * dt;
+		float player_speed_i = 100.0f * dt;
+		if (_keyboard[SDL_SCANCODE_LEFT]) player.angle -= angle_i;
+		if (_keyboard[SDL_SCANCODE_RIGHT]) player.angle += angle_i;
+		if (_keyboard[SDL_SCANCODE_UP]) player.speed += player_speed_i;
+		if (_keyboard[SDL_SCANCODE_DOWN]) player.speed -= player_speed_i;
 
 		if (_keyboard[SDL_SCANCODE_R])
 		{
@@ -36,10 +41,8 @@ public:
 			//player.angle = 0;
 			//player.speed = 0;
 		}
-	}
 
-	void Update(float dt)
-	{
+
 		player.x += (player.speed * cos(RAD(player.angle))) * dt;
 		player.y += (player.speed * sin(RAD(player.angle))) * dt;
 

@@ -101,8 +101,7 @@ public:
 		}
 
 		//=========================================================================================
-		physicsBox.Input(mouse, keyboard);
-		physicsBox.Update(dt);
+		physicsBox.Update(dt, mouse, keyboard);
 		//=========================================================================================
 
 		static char title[256];
