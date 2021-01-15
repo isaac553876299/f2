@@ -19,4 +19,13 @@ struct rect { int a, b, c, d; };
 inline bool PointInRect(point p, rect r) { return (p.a > r.a && p.a < r.a + r.c && p.b > r.b && p.b < r.b + r.d); }
 inline bool fPointInRect(fpoint p, rect r) { return (p.a > r.a && p.a < r.a + r.c && p.b > r.b && p.b < r.b + r.d); }
 
+struct timer
+{
+	Uint32 time;
+	timer() { Start(); };
+	void Start() { time = SDL_GetTicks(); };
+	inline Uint32 msRead() { return time; };
+	inline float sRead() { return float(time / 1000); };
+};
+
 #endif

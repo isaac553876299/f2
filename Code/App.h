@@ -12,6 +12,8 @@ public:
 	SDL_Renderer* renderer = nullptr;
 
 	float dt;
+	timer _timer;
+
 	Uint32 seconds;
 	int fpsCount;
 	int fps;
@@ -34,7 +36,6 @@ public:
 		for (auto i : keyboard) i = 0;
 		for (int i = 0; i < 200; i++) keyboard[i] = 0;
 
-		dt = SDL_GetTicks() / 1000;
 		seconds = SDL_GetTicks();
 		fpsCount = 0;
 		fps = 0;
@@ -86,7 +87,8 @@ public:
 
 	void Update()
 	{
-		dt = (SDL_GetTicks() / 1000) - dt;
+		dt = _timer.sRead();
+		_timer.Start();
 
 		fpsCount++;
 		if (SDL_GetTicks() - seconds > 1000)
@@ -105,11 +107,11 @@ public:
 		sprintf_s(title, 256, "fps(%d) | mouse{%d,%d,%d,%d}",
 			fps, _mouse.x, _mouse.y, _mouse.stateL, _mouse.stateR);
 		SDL_SetWindowTitle(window, title);
-
-		//Uint32 _dt = SDL_GetTicks() - 1000 * dt;
-		//Uint32 delay = ((1000 / FPS) - _dt > 0) ? ((1000 / FPS) - _dt) : 0;
-		//SDL_Delay(delay);
-		// (edt - dt > 0)(dt < edt)
+		if ((1000 / FPS) - dt > 0)
+		{
+			float delay = ((1000 / FPS) - dt);
+			SDL_Delay(delay);
+		}
 	}
 
 	void Draw()

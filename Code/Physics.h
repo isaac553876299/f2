@@ -29,14 +29,7 @@ public:
 		if (_keyboard[SDL_SCANCODE_UP]) player.speed += 0.01f;
 		if (_keyboard[SDL_SCANCODE_DOWN]) player.speed -= 0.01f;
 
-		if (_keyboard[SDL_SCANCODE_R])
-		{
-			player.rect = { 100,100,100,100 };
-			player.x = 100;
-			player.y = 100;
-			player.angle = 0;
-			player.speed = 0;
-		}
+		if (_keyboard[SDL_SCANCODE_R]) player = { {100,100,100,100},100,100,0,0 };
 	}
 
 	void Update(float dt)
