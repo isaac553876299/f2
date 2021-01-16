@@ -3,13 +3,77 @@
 
 #include "defs.h"
 
-struct spaceship { Rect rect; float x, y, angle, speed; };
+class Body
+{
+public:
+	fPoint* v = nullptr;
+	fPoint center;
+	fPoint inert;
+	int sides;
+	float radius;
+	float angle;
+	float speed;
+
+	Body(float _x,float _y,int _sides, float _radius, float _angle, float _speed) :
+		center{ _x,_y }, sides(_sides), radius(_radius), angle(_angle), speed(_speed)
+	{
+		v = new fPoint[sides];
+		//hmm...
+		Reset(_x, _y);
+	}
+	~Body()
+	{
+		RELEASE_ARRAY(v);
+	}
+
+	void Reset(float _x,float _y)
+	{
+		center = { _x,_y };
+		for (int i = 0; i < sides; i++)
+		{
+			v[i].x = center.x + radius * cos(RAD((360 / sides) * i));
+			v[i].y = center.y + radius * sin(RAD((360 / sides) * i));
+		}
+		inert = center;
+
+		//angle = 0;
+		//speed = 0;
+	}
+
+	void Update(float dt)
+	{
+		center.x += (speed * cos(RAD(angle))) * dt;
+		center.y += (speed * sin(RAD(angle))) * dt;
+		for (int i = 0; i < sides; i++)
+		{
+			v[i].x += (speed * cos(RAD(angle))) * dt;
+			v[i].y += (speed * sin(RAD(angle))) * dt;
+		}
+		//inert = center;
+	}
+
+	void Draw(SDL_Renderer* renderer)
+	{
+		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+		for (int i = 0; i < sides - 1; i++)
+			SDL_RenderDrawLine(renderer, v[i].x, v[i].y, v[i + 1].x, v[i + 1].y);
+		SDL_RenderDrawLine(renderer, v[sides - 1].x, v[sides - 1].y, v[0].x, v[0].y);
+
+		SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+		int x2 = center.x + 100 * cos(RAD(angle));
+		int y2 = center.y + 100 * sin(RAD(angle));
+		SDL_RenderDrawLine(renderer, center.x, center.y, x2, y2);
+
+		SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+		SDL_RenderDrawPoint(renderer, inert.x, inert.y);
+	}
+};
 
 class Physics
 {
 public:
 
-	spaceship player{ {100,100,100,100},100,100,0,0 };
+	Body* b1 = new Body(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 10, 50, 0, 0);
 
 	Physics()
 	{
@@ -18,7 +82,7 @@ public:
 
 	~Physics()
 	{
-
+		RELEASE(b1);
 	}
 
 	void Update(float dt, Mouse _mouse, int* _keyboard)
@@ -29,40 +93,19 @@ public:
 
 		float angle_i = 100.0f * dt;
 		float player_speed_i = 100.0f * dt;
-		if (_keyboard[SDL_SCANCODE_LEFT]) player.angle -= angle_i;
-		if (_keyboard[SDL_SCANCODE_RIGHT]) player.angle += angle_i;
-		if (_keyboard[SDL_SCANCODE_UP]) player.speed += player_speed_i;
-		if (_keyboard[SDL_SCANCODE_DOWN]) player.speed -= player_speed_i;
+		if (_keyboard[SDL_SCANCODE_LEFT]) b1->angle -= angle_i;
+		if (_keyboard[SDL_SCANCODE_RIGHT]) b1->angle += angle_i;
+		if (_keyboard[SDL_SCANCODE_UP]) b1->speed += player_speed_i;
+		if (_keyboard[SDL_SCANCODE_DOWN]) b1->speed -= player_speed_i;
 
-		if (_keyboard[SDL_SCANCODE_R])
-		{
-			player.x = 100;
-			player.y = 100;
-			//player.angle = 0;
-			//player.speed = 0;
-		}
+		if (_keyboard[SDL_SCANCODE_R]) b1->Reset(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
 
-
-		player.x += (player.speed * cos(RAD(player.angle))) * dt;
-		player.y += (player.speed * sin(RAD(player.angle))) * dt;
-
-		player.rect.a = player.x;
-		player.rect.b = player.y;
+		b1->Update(dt);
 	}
 
 	void Draw(SDL_Renderer* renderer)
 	{
-		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-		SDL_Rect rect{ player.rect.a ,player.rect.b ,player.rect.c ,player.rect.d };
-		SDL_RenderDrawRect(renderer, &rect);
-
-		int x1 = player.rect.a + player.rect.c / 2;
-		int y1 = player.rect.b + player.rect.d / 2;
-
-		int x2 = x1 + 100 * cos(RAD(player.angle));
-		int y2 = y1 + 100 * sin(RAD(player.angle));
-
-		SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
+		b1->Draw(renderer);
 	}
 };
 
