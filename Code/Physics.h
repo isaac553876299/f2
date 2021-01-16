@@ -13,11 +13,13 @@ public:
 	float radius;
 	float angle;
 	float speed;
+	bool* cv = nullptr;
 
 	Body(float _x,float _y,int _sides, float _radius, float _angle, float _speed) :
 		center{ _x,_y }, sides(_sides), radius(_radius), angle(_angle), speed(_speed)
 	{
 		v = new fPoint[sides];
+		cv = new bool[sides];
 		//hmm...
 		Reset(_x, _y);
 	}
@@ -33,6 +35,8 @@ public:
 		{
 			v[i].x = center.x + radius * cos(RAD((360 / sides) * i));
 			v[i].y = center.y + radius * sin(RAD((360 / sides) * i));
+
+			cv[i] = false;
 		}
 		inert = center;
 
@@ -66,6 +70,13 @@ public:
 
 		SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
 		SDL_RenderDrawPoint(renderer, inert.x, inert.y);
+
+		SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+		for (int i = 0; i < sides; i++)
+		{
+			if (cv[i])
+				SDL_RenderDrawPoint(renderer, v[i].x, v[i].y);
+		}
 	}
 
 	void Collision(Body* b2)
@@ -80,7 +91,12 @@ public:
 			{
 				for (int i = 0; i < sides; i++)
 				{
-
+					for (int j = 0; j < sides; j++)
+					{
+						//bool inx = (v[i].x > b2->v[j].x && v[i].x < b2->v[i + 1].x);
+						//bool iny = (v[i].y > b2->v[j].y && v[i].y < b2->v[i + 1].y);
+						
+					}
 				}
 			}
 		}
