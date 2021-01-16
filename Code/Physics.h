@@ -67,6 +67,24 @@ public:
 		SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
 		SDL_RenderDrawPoint(renderer, inert.x, inert.y);
 	}
+
+	void Collision(Body* b2)
+	{
+		bool collided = false;
+		if (this != b2)
+		{
+			float xd = abs(center.x - b2->center.x);
+			float yd = abs(center.y - b2->center.y);
+			float distance = sqrt((xd * xd) + (yd * yd));
+			if (distance < radius)
+			{
+				for (int i = 0; i < sides; i++)
+				{
+
+				}
+			}
+		}
+	}
 };
 
 class Physics
