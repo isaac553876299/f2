@@ -3,6 +3,10 @@
 
 #include "defs.h"
 
+/*dark magic¿
+http://geomalgorithms.com/a03-_inclusion.html
+dark magic¿*/
+
 class Body
 {
 public:
@@ -21,27 +25,31 @@ public:
 		v = new fPoint[sides];
 		cv = new bool[sides];
 		//hmm...
-		Reset(_x, _y);
+		Reset(_x, _y, false);
 	}
 	~Body()
 	{
 		RELEASE_ARRAY(v);
 	}
 
-	void Reset(float _x,float _y)
+	void Reset(float _x,float _y, bool sOnly)
 	{
-		center = { _x,_y };
-		for (int i = 0; i < sides; i++)
+		if (sOnly)
 		{
-			v[i].x = center.x + radius * cos(RAD((360 / sides) * i));
-			v[i].y = center.y + radius * sin(RAD((360 / sides) * i));
-
-			cv[i] = false;
+			speed = 0;
 		}
-		inert = center;
+		else
+		{
+			center = { _x,_y };
+			for (int i = 0; i < sides; i++)
+			{
+				v[i].x = center.x + radius * cos(RAD((360 / sides) * i));
+				v[i].y = center.y + radius * sin(RAD((360 / sides) * i));
 
-		//angle = 0;
-		//speed = 0;
+				cv[i] = false;
+			}
+			inert = center;
+		}
 	}
 
 	void Update(float dt)
@@ -81,7 +89,7 @@ public:
 
 	void Collision(Body* b2)
 	{
-		bool collided = false;
+		/*bool collided = false;
 		if (this != b2)
 		{
 			float xd = abs(center.x - b2->center.x);
@@ -99,7 +107,22 @@ public:
 					}
 				}
 			}
+		}*/
+	}
+
+	/*inline¿*/int isLeft(fPoint p0, fPoint p1, fPoint p2)
+	{
+		return ((p1.x < p0.x) * (p2.y - p0.y) - (p2.x - p0.x) * (p1.y - p0.y));
+	}
+	int wn_PnPoly(fPoint p, fPoint* v, int n)
+	{
+		int wn = 0;
+		for (int i = 0; i < n; i++)
+		{
+			if ((v[i].y <= p.y) && (v[i + 1].y > p.y) && (isLeft(v[i], v[i + 1], p) > 0)) ++wn;
+			else { if ((v[i + 1].y <= p.y) && (isLeft(v[i], v[i + 1], p) < 0)) --wn; }
 		}
+		return wn;
 	}
 };
 
@@ -108,7 +131,8 @@ class Physics
 public:
 
 	Body* b1 = new Body(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 10, 50, 0, 0);
-
+	Body* b2 = new Body(100, 100, 3, 50, 0, 0);
+	bool collision = false;
 	Physics()
 	{
 
@@ -132,14 +156,20 @@ public:
 		if (_keyboard[SDL_SCANCODE_UP]) b1->speed += player_speed_i;
 		if (_keyboard[SDL_SCANCODE_DOWN]) b1->speed -= player_speed_i;
 
-		if (_keyboard[SDL_SCANCODE_R]) b1->Reset(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
+		if (_keyboard[SDL_SCANCODE_R]) b1->Reset(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, false);
+		if (_keyboard[SDL_SCANCODE_T]) b1->Reset(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, true);
 
 		b1->Update(dt);
+		//b2->Update(dt);
+		b1->Collision(b2);
+
+		collision = (b1->wn_PnPoly(b1->center, b2->v, b2->sides) != 0) ? true : false;
 	}
 
 	void Draw(SDL_Renderer* renderer)
 	{
 		b1->Draw(renderer);
+		b2->Draw(renderer);
 	}
 };
 
