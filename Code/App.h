@@ -105,11 +105,11 @@ public:
 		//=========================================================================================
 
 		static char title[256];
-		sprintf_s(title, 256, "fps(%d) | mouse{%d|%d|%d|%d} b1->speed(%.1f) collision(%d)",
+		sprintf_s(title, 256, "fps(%d) | mouse{%d|%d|%d|%d} b1->speed(%.1f) collision{%d,%d}",
 			fps,
 			mouse.x, mouse.y, mouse.stateL, mouse.stateR,
 			physicsBox.b1->speed,
-			physicsBox.collision);
+			physicsBox.collision[0], physicsBox.collision[1]);
 		SDL_SetWindowTitle(window, title);
 	}
 

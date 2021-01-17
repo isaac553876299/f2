@@ -27,8 +27,8 @@ struct Timer
 	Uint32 time;
 	Timer() { Start(); };
 	void Start() { time = SDL_GetTicks(); };
-	/*inline¿*/Uint32 msRead() { return time; };
-	/*inline¿*/float sRead() { return float(time / 1000); };
+	/*inline*/Uint32 msRead() { return time; };
+	/*inline*/float sRead() { return float(time / 1000); };
 };
 
 #endif

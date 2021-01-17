@@ -83,31 +83,22 @@ public:
 		}
 	}
 
-	void Collision(Body* b2)
+	bool Collision(Body* b2)
 	{
-		/*bool collided = false;
 		if (this != b2)
 		{
 			float xd = abs(center.x - b2->center.x);
 			float yd = abs(center.y - b2->center.y);
 			float distance = sqrt((xd * xd) + (yd * yd));
-			if (distance < radius)
-			{
-				for (int i = 0; i < sides; i++)
-				{
-					for (int j = 0; j < sides; j++)
-					{
-						//bool inx = (v[i].x > b2->v[j].x && v[i].x < b2->v[i + 1].x);
-						//bool iny = (v[i].y > b2->v[j].y && v[i].y < b2->v[i + 1].y);
-						
-					}
-				}
-			}
-		}*/
+			if (distance < radius) return (wn_PnPoly(b2->v, b2->sides) != 0);
+		}
+		return false;
 	}
 
-	/*dark magic¿ http://geomalgorithms.com/a03-_inclusion.htmldark magic¿*/
-	/*inline¿*/int isLeft(fPoint p0, fPoint p1, fPoint p2)
+	//=================================================
+	//http://geomalgorithms.com/a03-_inclusion.htmldark
+	//=================================================
+	/*inline*/int isLeft(fPoint p0, fPoint p1, fPoint p2)
 	{
 		return ((p1.x < p0.x) * (p2.y - p0.y) - (p2.x - p0.x) * (p1.y - p0.y));
 	}
@@ -116,8 +107,11 @@ public:
 		int wn = 0;
 		for (int i = 0; i < n; i++)
 		{
-			if ((v[i].y <= p.y) && (v[i + 1].y > p.y) && (isLeft(v[i], v[i + 1], p) > 0)) ++wn;
-			else { if ((v[i + 1].y <= p.y) && (isLeft(v[i], v[i + 1], p) < 0)) --wn; }
+			for (int j = 0; j < n; j++)
+			{
+				if ((v[i].y <= v2[j].y) && (v[i + 1].y > v2[j].y) && (isLeft(v[i], v[i + 1], v2[j]) > 0)) ++wn;
+				else { if ((v[i + 1].y <= v2[j].y) && (isLeft(v[i], v[i + 1], v2[j]) < 0)) --wn; }
+			}
 		}
 		return wn;
 	}
@@ -127,9 +121,27 @@ class Physics
 {
 public:
 
-	Body* b1 = new Body(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 10, 50, 0, 0);
-	Body* b2 = new Body(100, 100, 3, 50, 0, 0);
-	bool collision = false;
+	Body* b1 = new Body(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 7, 100, 0, 0);
+	Body* b2 = new Body(800, 300, 5, 50, 0, 0);
+	Body* b3 = new Body(800, 400, 4, 50, 0, 0);
+
+	int a = 72;
+	int b = a / 2;
+	Body* example[9] =
+	{
+		new Body(a, a * 1, 3, b, 0, 0),
+		new Body(a, a * 2, 4, b, 0, 0),
+		new Body(a, a * 3, 5, b, 0, 0),
+		new Body(a, a * 4, 6, b, 0, 0),
+		new Body(a, a * 5, 7, b, 0, 0),
+		new Body(a, a * 6, 8, b, 0, 0),
+		new Body(a, a * 7, 9, b, 0, 0),
+		new Body(a, a * 8, 10, b, 0, 0),
+		new Body(a, a * 9, 360, b, 0, 0),
+	};
+
+	bool collision[2] = { false,false };
+
 	Physics()
 	{
 
@@ -157,16 +169,20 @@ public:
 		if (_keyboard[SDL_SCANCODE_T]) b1->Reset(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, true);
 
 		b1->Update(dt);
-		//b2->Update(dt);
-		b1->Collision(b2);
 
-		collision = (b1->wn_PnPoly(b1->center, b2->v, b2->sides) != 0) ? true : false;
+		collision[0] = b1->Collision(b2);
+		collision[1] = b1->Collision(b3);
 	}
 
 	void Draw(SDL_Renderer* renderer)
 	{
 		b1->Draw(renderer);
 		b2->Draw(renderer);
+		b3->Draw(renderer);
+
+
+		for (int i = 0; i < 9; i++)
+			example[i]->Draw(renderer);
 	}
 };
 
