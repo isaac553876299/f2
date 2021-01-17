@@ -3,10 +3,6 @@
 
 #include "defs.h"
 
-/*dark magic¿
-http://geomalgorithms.com/a03-_inclusion.html
-dark magic¿*/
-
 class Body
 {
 public:
@@ -110,11 +106,12 @@ public:
 		}*/
 	}
 
+	/*dark magic¿ http://geomalgorithms.com/a03-_inclusion.htmldark magic¿*/
 	/*inline¿*/int isLeft(fPoint p0, fPoint p1, fPoint p2)
 	{
 		return ((p1.x < p0.x) * (p2.y - p0.y) - (p2.x - p0.x) * (p1.y - p0.y));
 	}
-	int wn_PnPoly(fPoint p, fPoint* v, int n)
+	int wn_PnPoly(fPoint* v2, int n)
 	{
 		int wn = 0;
 		for (int i = 0; i < n; i++)
