@@ -81,11 +81,19 @@ public:
 			if (cv[i])
 				SDL_RenderDrawPoint(renderer, v[i].x, v[i].y);
 		}
+
+		SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
+		for (int i = 0; i < 36; i++)
+		{
+			int mx = center.x + radius * cos(RAD(10) * i);
+			int my = center.y + radius * sin(RAD(10) * i);
+			SDL_RenderDrawPoint(renderer, mx, my);
+		}
 	}
 
 	bool Collision(Body* b2)
 	{
-		int _wn = 0;
+		int _n = 0;
 		if (this != b2)
 		{
 			float xd = abs(center.x - b2->center.x);
@@ -93,17 +101,30 @@ public:
 			float distance = sqrt((xd * xd) + (yd * yd));
 			if (distance < radius)
 				for (int i = 0; i < sides; i++)
-					_wn += wn_PnPoly(v[i], b2->v, b2->sides);
+					_n += cn_PnPoly(v[i], b2->v, b2->sides);
 		}
-		return (!(_wn == 0));
+		return (!(_n == 0));
 	}
 
-	//=================================================
-	//http://geomalgorithms.com/a03-_inclusion.htmldark
-	//=================================================
+	//=============================================
+	//http://geomalgorithms.com/a03-_inclusion.html
+	//=============================================
 	/*inline*/int isLeft(fPoint p0, fPoint p1, fPoint p2)
 	{
 		return ((p1.x < p0.x) * (p2.y - p0.y) - (p2.x - p0.x) * (p1.y - p0.y));
+	}
+	int cn_PnPoly(fPoint P, fPoint* V, int n)
+	{
+		int cn = 0;
+		for (int i = 0; i < n; i++)
+		{
+			if (((V[i].y <= P.y) && (V[i + 1].y > P.y)) || ((V[i].y > P.y) && (V[i + 1].y <= P.y)))
+			{
+				float vt = (float)(P.y - V[i].y) / (V[i + 1].y - V[i].y);
+				if (P.x < V[i].x + vt * (V[i + 1].x - V[i].x)) ++cn;
+			}
+		}
+		return (cn & 1);
 	}
 	int wn_PnPoly(fPoint P, fPoint* V, int n)
 	{
