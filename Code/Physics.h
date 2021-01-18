@@ -85,14 +85,17 @@ public:
 
 	bool Collision(Body* b2)
 	{
+		int _wn = 0;
 		if (this != b2)
 		{
 			float xd = abs(center.x - b2->center.x);
 			float yd = abs(center.y - b2->center.y);
 			float distance = sqrt((xd * xd) + (yd * yd));
-			if (distance < radius) return (wn_PnPoly(b2->v, b2->sides) != 0);
+			if (distance < radius)
+				for (int i = 0; i < sides; i++)
+					_wn += wn_PnPoly(v[i], b2->v, b2->sides);
 		}
-		return false;
+		return (!(_wn == 0));
 	}
 
 	//=================================================
@@ -102,15 +105,22 @@ public:
 	{
 		return ((p1.x < p0.x) * (p2.y - p0.y) - (p2.x - p0.x) * (p1.y - p0.y));
 	}
-	int wn_PnPoly(fPoint* v2, int n)
+	int wn_PnPoly(fPoint P, fPoint* V, int n)
 	{
 		int wn = 0;
 		for (int i = 0; i < n; i++)
 		{
-			for (int j = 0; j < n; j++)
+			if (V[i].y <= P.y)
 			{
-				if ((v[i].y <= v2[j].y) && (v[i + 1].y > v2[j].y) && (isLeft(v[i], v[i + 1], v2[j]) > 0)) ++wn;
-				else { if ((v[i + 1].y <= v2[j].y) && (isLeft(v[i], v[i + 1], v2[j]) < 0)) --wn; }
+				if (V[i + 1].y > P.y)
+					if (isLeft(V[i], V[i + 1], P) > 0)
+						++wn;
+			}
+			else
+			{
+				if (V[i + 1].y <= P.y)
+					if (isLeft(V[i], V[i + 1], P) < 0)
+						--wn;
 			}
 		}
 		return wn;
