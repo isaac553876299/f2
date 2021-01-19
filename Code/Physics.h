@@ -3,48 +3,49 @@
 
 #include "defs.h"
 
+struct wbound
+{
+	fPoint v;
+	bool in;
+};
+
 class Body
 {
 public:
 	fPoint* v = nullptr;
 	fPoint center;
-	fPoint inert;
 	int sides;
 	float radius;
 	float angle;
+	float rotation;
 	float speed;
-	bool* cv = nullptr;
+	wbound* b = nullptr;
 
-	Body(float _x,float _y,int _sides, float _radius, float _angle, float _speed) :
-		center{ _x,_y }, sides(_sides), radius(_radius), angle(_angle), speed(_speed)
+	Body(float _x,float _y,int _sides, float _radius, float _angle, float _rotation, float _speed) :
+		center{ _x,_y }, sides(_sides), radius(_radius), angle(_angle), rotation(_rotation), speed(_speed)
 	{
 		v = new fPoint[sides];
-		cv = new bool[sides];
-		//hmm...
-		Reset(_x, _y, false);
+		b = new wbound[360];
+		ResetPos(_x, _y);
 	}
 	~Body()
 	{
 		RELEASE_ARRAY(v);
 	}
 
-	void Reset(float _x,float _y, bool sOnly)
+	void ResetPos(float _x,float _y)
 	{
-		if (sOnly)
+		center = { _x,_y };
+		for (int i = 0; i < sides; i++)
 		{
-			speed = 0;
+			v[i].x = center.x + radius * cos(RAD((360 / sides) * i));//+rotation
+			v[i].y = center.y + radius * sin(RAD((360 / sides) * i));//+rotation
 		}
-		else
+		for (int i = 0; i < 360; i++)
 		{
-			center = { _x,_y };
-			for (int i = 0; i < sides; i++)
-			{
-				v[i].x = center.x + radius * cos(RAD((360 / sides) * i));
-				v[i].y = center.y + radius * sin(RAD((360 / sides) * i));
-
-				cv[i] = false;
-			}
-			inert = center;
+			b[i].v.x = center.x + radius * cos(RAD(i));
+			b[i].v.y = center.y + radius * sin(RAD(i));
+			b[i].in = false;
 		}
 	}
 
@@ -52,124 +53,65 @@ public:
 	{
 		center.x += (speed * cos(RAD(angle))) * dt;
 		center.y += (speed * sin(RAD(angle))) * dt;
-		for (int i = 0; i < sides; i++)
+		ResetPos(center.x, center.y);
+		/*for (int i = 0; i < sides; i++)
 		{
 			v[i].x += (speed * cos(RAD(angle))) * dt;
 			v[i].y += (speed * sin(RAD(angle))) * dt;
-		}
-		//inert = center;
+		}*/
 	}
 
 	void Draw(SDL_Renderer* renderer)
 	{
+		//draw *v
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 		for (int i = 0; i < sides - 1; i++)
 			SDL_RenderDrawLine(renderer, v[i].x, v[i].y, v[i + 1].x, v[i + 1].y);
 		SDL_RenderDrawLine(renderer, v[sides - 1].x, v[sides - 1].y, v[0].x, v[0].y);
 
+		//draw *b
+		for (int i = 0; i < 359; i++)
+		{
+			if (b[i].in == false) SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
+			else SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+			SDL_RenderDrawLine(renderer, b[i].v.x, b[i].v.y, b[i + 1].v.x, b[i + 1].v.y);
+		}
+		if (b[359].in == false) SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
+		else SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+		SDL_RenderDrawLine(renderer, b[359].v.x, b[359].v.y, b[0].v.x, b[0].v.y);
+
+		//draw radius
 		SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
 		int x2 = center.x + 100 * cos(RAD(angle));
 		int y2 = center.y + 100 * sin(RAD(angle));
 		SDL_RenderDrawLine(renderer, center.x, center.y, x2, y2);
-
-		SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-		SDL_RenderDrawPoint(renderer, inert.x, inert.y);
-
-		SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
-		for (int i = 0; i < sides; i++)
-		{
-			if (cv[i])
-				SDL_RenderDrawPoint(renderer, v[i].x, v[i].y);
-		}
-
-		SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
-		for (int i = 0; i < 36; i++)
-		{
-			int mx = center.x + radius * cos(RAD(10) * i);
-			int my = center.y + radius * sin(RAD(10) * i);
-			SDL_RenderDrawPoint(renderer, mx, my);
-		}
 	}
 
-	bool Collision(Body* b2)
+	float mod(fPoint p0, fPoint p1)
 	{
-		int _n = 0;
+		fPoint cd{ (abs(p0.x - p1.x)),(abs(p0.y - p1.y)) };
+		return (float(sqrt((cd.x * cd.x) + (cd.y * cd.y))));
+	}
+	void Collision(Body* b2)
+	{
 		if (this != b2)
-		{
-			float xd = abs(center.x - b2->center.x);
-			float yd = abs(center.y - b2->center.y);
-			float distance = sqrt((xd * xd) + (yd * yd));
-			if (distance < radius)
-				for (int i = 0; i < sides; i++)
-					_n += cn_PnPoly(v[i], b2->v, b2->sides);
-		}
-		return (!(_n == 0));
+			if (mod(center, b2->center) < (radius + b2->radius))
+				for (int i = 0; i < 360; i++)
+					if (mod(b[i].v, b2->center) < b2->radius)
+						b[i].in = true;
 	}
 
 	//=============================================
 	//http://geomalgorithms.com/a03-_inclusion.html
 	//=============================================
-	/*inline*/int isLeft(fPoint p0, fPoint p1, fPoint p2)
-	{
-		return ((p1.x < p0.x) * (p2.y - p0.y) - (p2.x - p0.x) * (p1.y - p0.y));
-	}
-	int cn_PnPoly(fPoint P, fPoint* V, int n)
-	{
-		int cn = 0;
-		for (int i = 0; i < n; i++)
-		{
-			if (((V[i].y <= P.y) && (V[i + 1].y > P.y)) || ((V[i].y > P.y) && (V[i + 1].y <= P.y)))
-			{
-				float vt = (float)(P.y - V[i].y) / (V[i + 1].y - V[i].y);
-				if (P.x < V[i].x + vt * (V[i + 1].x - V[i].x)) ++cn;
-			}
-		}
-		return (cn & 1);
-	}
-	int wn_PnPoly(fPoint P, fPoint* V, int n)
-	{
-		int wn = 0;
-		for (int i = 0; i < n; i++)
-		{
-			if (V[i].y <= P.y)
-			{
-				if (V[i + 1].y > P.y)
-					if (isLeft(V[i], V[i + 1], P) > 0)
-						++wn;
-			}
-			else
-			{
-				if (V[i + 1].y <= P.y)
-					if (isLeft(V[i], V[i + 1], P) < 0)
-						--wn;
-			}
-		}
-		return wn;
-	}
 };
 
 class Physics
 {
 public:
 
-	Body* b1 = new Body(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 7, 100, 0, 0);
-	Body* b2 = new Body(800, 300, 5, 50, 0, 0);
-	Body* b3 = new Body(800, 400, 4, 50, 0, 0);
-
-	int a = 72;
-	int b = a / 2;
-	Body* example[9] =
-	{
-		new Body(a, a * 1, 3, b, 0, 0),
-		new Body(a, a * 2, 4, b, 0, 0),
-		new Body(a, a * 3, 5, b, 0, 0),
-		new Body(a, a * 4, 6, b, 0, 0),
-		new Body(a, a * 5, 7, b, 0, 0),
-		new Body(a, a * 6, 8, b, 0, 0),
-		new Body(a, a * 7, 9, b, 0, 0),
-		new Body(a, a * 8, 10, b, 0, 0),
-		new Body(a, a * 9, 360, b, 0, 0),
-	};
+	Body* b1 = new Body(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 7, 100, 0, 0, 0);
+	Body* b2 = new Body(800, 300, 3, 50, 0, 0, 0);
 
 	bool collision[2] = { false,false };
 
@@ -191,29 +133,28 @@ public:
 
 		float angle_i = 100.0f * dt;
 		float player_speed_i = 100.0f * dt;
+
 		if (_keyboard[SDL_SCANCODE_LEFT]) b1->angle -= angle_i;
 		if (_keyboard[SDL_SCANCODE_RIGHT]) b1->angle += angle_i;
+
+		if (_keyboard[SDL_SCANCODE_Z]) b1->rotation -= angle_i;
+		if (_keyboard[SDL_SCANCODE_X]) b1->rotation += angle_i;
+
 		if (_keyboard[SDL_SCANCODE_UP]) b1->speed += player_speed_i;
 		if (_keyboard[SDL_SCANCODE_DOWN]) b1->speed -= player_speed_i;
 
-		if (_keyboard[SDL_SCANCODE_R]) b1->Reset(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, false);
-		if (_keyboard[SDL_SCANCODE_T]) b1->Reset(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, true);
+		if (_keyboard[SDL_SCANCODE_R]) b1->ResetPos(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
+		if (_keyboard[SDL_SCANCODE_T]) b1->speed = 0;
 
 		b1->Update(dt);
 
-		collision[0] = b1->Collision(b2);
-		collision[1] = b1->Collision(b3);
+		b1->Collision(b2);
 	}
 
 	void Draw(SDL_Renderer* renderer)
 	{
 		b1->Draw(renderer);
 		b2->Draw(renderer);
-		b3->Draw(renderer);
-
-
-		for (int i = 0; i < 9; i++)
-			example[i]->Draw(renderer);
 	}
 };
 
