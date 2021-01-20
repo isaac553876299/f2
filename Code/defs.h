@@ -31,7 +31,6 @@ struct Timer
 	/*inline*/float sRead() { return float(time / 1000); };
 };
 
-#if 0
 template<class tdata>
 struct ListItem
 {
@@ -63,22 +62,19 @@ public:
 	{
 		ListItem<tdata>* dataItem = new ListItem<tdata>(item);
 
-		if (start == nullptr)
-		{
-			start = end = dataItem;
-		}
-		else
-		{
-			dataItem->prev = end;
-			end->next = dataItem;
-			end = dataItem;
-		}
+		dataItem->next = start;
+		start->prev = dataItem;
+		start = dataItem;
+
+		dataItem->prev = end;
+		end->next = dataItem;
+		end = dataItem;
 
 		++size;
-		return(dataItem);
+		return dataItem;
 	}
 
-	bool del(ListItem<tdata>* item)
+	void del(ListItem<tdata>* item)
 	{
 		if (item != nullptr)
 		{
@@ -100,9 +96,7 @@ public:
 
 			RELEASE(item);
 			--size;
-			return true;
 		}
-		return false;
 	}
 
 	void clear()
@@ -132,6 +126,5 @@ public:
 		return (p_item->data != nullptr) ? p_item->data : nullptr;//assert
 	}
 };
-#endif
 
 #endif
