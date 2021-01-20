@@ -1,6 +1,10 @@
 #ifndef _PHYSICS_H_
 #define _PHYSICS_H_
 
+//=============================================
+//http://geomalgorithms.com/a03-_inclusion.html
+//=============================================
+
 #include "defs.h"
 
 struct wbound
@@ -54,11 +58,6 @@ public:
 		center.x += (speed * cos(RAD(angle))) * dt;
 		center.y += (speed * sin(RAD(angle))) * dt;
 		ResetPos(center.x, center.y);
-		/*for (int i = 0; i < sides; i++)
-		{
-			v[i].x += (speed * cos(RAD(angle))) * dt;
-			v[i].y += (speed * sin(RAD(angle))) * dt;
-		}*/
 	}
 
 	void Draw(SDL_Renderer* renderer)
@@ -100,10 +99,6 @@ public:
 					if (mod(b[i].v, b2->center) < b2->radius)
 						b[i].in = true;
 	}
-
-	//=============================================
-	//http://geomalgorithms.com/a03-_inclusion.html
-	//=============================================
 };
 
 class Physics
