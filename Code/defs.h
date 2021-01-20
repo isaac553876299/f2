@@ -3,6 +3,10 @@
 #include <iostream>
 #include "../SDL2-2.0.14/include/SDL.h"
 
+//=============================================
+//http://geomalgorithms.com/a03-_inclusion.html
+//=============================================
+
 #define FPS 60
 #define _dt (1000/FPS)/1000
 //dt_30_60_120_144{0.0333,0.0167,0.0083,0.00694}
@@ -24,6 +28,13 @@ struct vertexbool
 	fPoint v;
 	bool in;
 };
+
+void DrawfLine(SDL_Renderer* renderer, fPoint p0,fPoint p1)
+{
+	SDL_RenderDrawLine(renderer, p0.x, p0.y, p1.x, p1.y);
+}
+
+struct fRect { float x, y, w, h; };
 
 bool PointInRect(SDL_Point p, SDL_Rect r) { return (p.x > r.x && p.x < r.x + r.w && p.y > r.y && p.y < r.y + r.h); }
 bool fPointInRect(fPoint p, SDL_Rect r) { return (p.x > r.x && p.x < r.x + r.w && p.y > r.y && p.y < r.y + r.h); }
