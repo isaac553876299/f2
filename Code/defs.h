@@ -19,6 +19,12 @@ struct Mouse { int x, y, offsx, offsy, stateL, stateR; };
 
 struct fPoint { float x, y; };
 
+struct vertexbool
+{
+	fPoint v;
+	bool in;
+};
+
 bool PointInRect(SDL_Point p, SDL_Rect r) { return (p.x > r.x && p.x < r.x + r.w && p.y > r.y && p.y < r.y + r.h); }
 bool fPointInRect(fPoint p, SDL_Rect r) { return (p.x > r.x && p.x < r.x + r.w && p.y > r.y && p.y < r.y + r.h); }
 
@@ -32,10 +38,7 @@ float norm(fPoint p0, fPoint p1)
 	fPoint v{ (p0.x - p1.x),(p0.y - p1.y) };
 	return (float(sqrt((v.x * v.x) + (v.y * v.y))));
 }
-float norm(fPoint v)
-{
-	return (float(sqrt((v.x * v.x) + (v.y * v.y))));
-}
+float norm(fPoint v) { return (float(sqrt((v.x * v.x) + (v.y * v.y)))); }
 
 struct Timer
 {

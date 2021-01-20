@@ -7,12 +7,6 @@
 
 #include "defs.h"
 
-struct wbound
-{
-	fPoint v;
-	bool in;
-};
-
 class Body
 {
 public:
@@ -23,13 +17,13 @@ public:
 	float angle;
 	float rotation;
 	float speed;
-	wbound* b = nullptr;
+	vertexbool* b = nullptr;
 
 	Body(float _x,float _y,int _sides, float _radius, float _angle, float _rotation, float _speed) :
 		center{ _x,_y }, sides(_sides), radius(_radius), angle(_angle), rotation(_rotation), speed(_speed)
 	{
 		v = new fPoint[sides];
-		b = new wbound[360];
+		b = new vertexbool[360];
 		ResetPos(_x, _y);
 	}
 	~Body();

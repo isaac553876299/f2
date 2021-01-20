@@ -19,8 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Code\App.cpp" />
     <ClCompile Include="Code\Main.cpp" />
-    <ClCompile Include="Code\Scene.cpp" />
+    <ClCompile Include="Code\Physics.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\App.h" />
