@@ -19,7 +19,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Code\App.cpp" />
     <ClCompile Include="Code\main.cpp" />
+    <ClCompile Include="Code\Physics.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Code\App.h" />
+    <ClInclude Include="Code\defs.h" />
+    <ClInclude Include="Code\Physics.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
