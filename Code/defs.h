@@ -60,6 +60,7 @@ struct Timer
 	/*inline*/float sRead() { return float(time / 1000); };
 };
 
+#if 0
 template<class tdata>
 struct ListItem
 {
@@ -155,5 +156,6 @@ public:
 		return (p_item->data != nullptr) ? p_item->data : nullptr;//assert
 	}
 };
+#endif
 
 #endif

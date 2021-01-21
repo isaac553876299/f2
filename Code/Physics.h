@@ -3,8 +3,10 @@
 
 #include "defs.h"
 
-struct Body
+class Body
 {
+public:
+	int nsides;
 	fPoint center;
 	float radius;
 	fPoint* vertex;
@@ -13,31 +15,26 @@ struct Body
 	float directionAngle;
 	float rotationAngle;
 
-	Body(int n, float x, float y, float r, fPoint* v, float vx, float vy, float da, float ra)
-	{
-		center = { x,y };
-		radius = r;
-		vertex = new fPoint[n];
-		for (int i = 0; i < n; i++)
-		{
-			vertex[i].x = center.x + radius * cos(RAD((360 / n) * i));
-			vertex[i].y = center.y + radius * sin(RAD((360 / n) * i));
-		}
-	}
+	Body(int n, float x, float y, float r, float vx, float vy, float da, float ra);
 	~Body();
+
+	void Draw(SDL_Renderer* renderer);
+
 };
 
 class Physics
 {
 public:
 
-	Body* b1 = new Body(100, 100, 100, 4, 0, 0, 0, 0);
+	Body* b1 = new Body(4, 100.f, 100.f, 50.f, 0.f, 0.f, 0.f, 0.f);
 
 	Physics();
 	~Physics();
 
-	void Update(float dt, Mouse _mouse, int* _keyboard);
+	void Input(Mouse _mouse, int* _keyboard);
+	void Update(float dt);
 	void Draw(SDL_Renderer* renderer);
+
 };
 
 #endif

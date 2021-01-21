@@ -75,14 +75,15 @@ void App::Update()
 	}
 
 	//=========================================================================================
-	physicsBox.Update(dt, mouse, keyboard);
+	physicsBox.Input(mouse, keyboard);
+	physicsBox.Update(dt);
 	//=========================================================================================
 
 	static char title[256];
-	sprintf_s(title, 256, "fps(%d) | mouse{%d|%d|%d|%d} b1->speed(%.1f)",
+	sprintf_s(title, 256, "fps(%d) | mouse{%d|%d|%d|%d} b1{velocity{%.1f,%.1f},directionAngle{%.1f},rotationAngle{%.1f}",
 		fps,
 		mouse.x, mouse.y, mouse.stateL, mouse.stateR,
-		physicsBox.b1->speed);
+		physicsBox.b1->velocity.x, physicsBox.b1->velocity.y, physicsBox.b1->directionAngle, physicsBox.b1->rotationAngle);
 	SDL_SetWindowTitle(window, title);
 }
 
