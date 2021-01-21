@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 #include "../SDL2-2.0.14/include/SDL.h"
 
 //=================================================================================================
@@ -11,8 +12,19 @@
 #define RELEASE(x) { delete x; x = nullptr; }
 #define RELEASE_ARRAY(x) { delete[] x; x = nullptr; }
 
-#define WINDOW_WIDTH 1280
-#define WINDOW_HEIGHT 720
+#define WINDOW_WIDTH 720
+#define WINDOW_HEIGHT 920
+
+#define GRAVITYEARTH 9.8
+#define GRAVITYMOON 1.6
+
+#define PIXELS_PER_METER 50.0f // if touched change METER_PER_PIXEL too
+#define METER_PER_PIXEL 0.02f // this is 1 / PIXELS_PER_METER !
+
+#define METERS_TO_PIXELS(m) ((int) floor(PIXELS_PER_METER * m))
+#define PIXEL_TO_METERS(p)  ((float) METER_PER_PIXEL * p)
+
+#define G pow(10,-2)*6.6
 
 #define RAD(a) (a*3.14/180)
 
@@ -51,103 +63,6 @@ struct Timer
 	/*inline*/float sRead() { return float((SDL_GetTicks() - time) / 1000.f); };
 };
 
-/*
-template<class tdata>
-struct ListItem
-{
-	tdata data;
-	ListItem<tdata>* next = nullptr;
-	ListItem<tdata>* prev = nullptr;
-
-	inline ListItem(const tdata& _data) : data(_data) {}
-	~ListItem() {}
-};
-
-template<class tdata>
-class List
-{
-public:
-	ListItem<tdata>* start;
-	ListItem<tdata>* end;
-private:
-	unsigned int size;
-public:
-	List() { init(); }
-	~List() { clear(); }
-
-	void init() { start = end = nullptr; size = 0; }
-
-	unsigned int Count() const { return size; }
-
-	ListItem<tdata>* add(const tdata& item)
-	{
-		ListItem<tdata>* dataItem = new ListItem<tdata>(item);
-
-		end->next = dataItem;
-		dataItem->prev = end;
-		end = dataItem;
-		dataItem->next = start;
-		start->prev = dataItem;
-
-		++size;
-		return dataItem;
-	}
-
-	void del(ListItem<tdata>* item)
-	{
-		if (item != nullptr)
-		{
-			if (item->prev != nullptr)
-			{
-				item->prev->next = item->next;
-				if (item->next != nullptr) item->next->prev = item->prev;
-				else end = item->prev;
-			}
-			else
-			{
-				if (item->next != nullptr)
-				{
-					item->next->prev = nullptr;
-					start = item->next;
-				}
-				else start = end = nullptr;
-			}
-
-			RELEASE(item);
-			--size;
-		}
-	}
-
-	void clear()
-	{
-		while (start != nullptr)
-		{
-			ListItem<tdata>* p_next = start->next;
-			RELEASE(start);
-			start = p_next;
-		}
-		init();
-	}
-
-	tdata& operator [](const unsigned int index)
-	{
-		for (ListItem<tdata>* p_item = start, long pos = 0;
-			p_item != nullptr && pos < index;
-			p_item = p_item->next; pos++);
-		return p_item->data;
-	}
-
-	const tdata& operator [](const unsigned int index) const
-	{
-		for (ListItem<tdata>* p_item = start, long pos = 0;
-			p_item != nullptr && pos < index;
-			p_item = p_item->next; pos++);
-		return (p_item->data != nullptr) ? p_item->data : nullptr;//assert
-	}
-};*/
-
-//=================================================================================================
-
 class Body
 {
 public:
@@ -158,21 +73,22 @@ public:
 
 	float directionAngle;
 	float rotationAngle;
-	float velocity;
-	float acceleration;
-	float force;
+	fPoint velocity;
+	fPoint acceleration;
+	fPoint force;
 	float mass;
+	fPoint gravity;
 
-	Body(int n, float x, float y, float r, float da, float ra, float v, float a, float f, float m)
+	Body(int n, float x, float y, float r, float da, float ra, float m)
 	{
 		nsides = n;
 		center = { x,y };
 		radius = r;
 		vertex = new fPoint[nsides];
 		UpdateVertex();
-		velocity = v;
 		directionAngle = da;
 		rotationAngle = ra;
+		mass = m;
 		
 	}
 	~Body() {};
@@ -203,8 +119,8 @@ public:
 class Physics
 {
 public:
-
-	Body* b1 = new Body(10, 300.f, 300.f, 50.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f);
+	Body* rocket = new Body(4, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(25000.f), PIXEL_TO_METERS(2500.0f), 0.f,0.f, 10000.0f);
+	Body* earth = new Body(50, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(70000.f), PIXEL_TO_METERS(30000.0f), 0.f,0.f, 500000.0f);
 
 	fPoint camera{ 0.f,0.f };
 
@@ -218,39 +134,44 @@ public:
 		if (_keyboard[SDL_SCANCODE_A]) camera.x -= 1.f;
 		if (_keyboard[SDL_SCANCODE_D]) camera.x += 1.f;
 
-		if (_keyboard[SDL_SCANCODE_1]) b1->velocity += 0.1f;
-		if (_keyboard[SDL_SCANCODE_2]) b1->velocity -= 0.1f;
-		if (_keyboard[SDL_SCANCODE_3]) b1->acceleration += 0.1f;
-		if (_keyboard[SDL_SCANCODE_4]) b1->acceleration -= 0.1f;
+		if (_keyboard[SDL_SCANCODE_UP]) rocket->velocity.x += 0.1f;
+		if (_keyboard[SDL_SCANCODE_DOWN]) rocket->velocity.y -= 0.1f;
+		//if (_keyboard[SDL_SCANCODE_3]) rocket->acceleration += 0.1f;
+	//	if (_keyboard[SDL_SCANCODE_4]) rocket->acceleration -= 0.1f;
 
-		if (_keyboard[SDL_SCANCODE_R]) b1->center = { 300,300 };
-		if (_keyboard[SDL_SCANCODE_T]) b1->velocity = 0.f;
+		if (_keyboard[SDL_SCANCODE_R]) rocket->center = { 300,300 };
+		//if (_keyboard[SDL_SCANCODE_T]) rocket->velocity = 0.f;
 
 
 		float increment = 1.0f;
-		if (_keyboard[SDL_SCANCODE_C]) b1->directionAngle -= increment;
-		if (_keyboard[SDL_SCANCODE_V]) b1->directionAngle += increment;
-		if (_keyboard[SDL_SCANCODE_Z]) b1->rotationAngle -= increment;
-		if (_keyboard[SDL_SCANCODE_X]) b1->rotationAngle += increment;
+		if (_keyboard[SDL_SCANCODE_LEFT]) rocket->directionAngle -= increment;
+		if (_keyboard[SDL_SCANCODE_RIGHT]) rocket->directionAngle += increment;
 	}
 
 	void Update(float dt)//step
 	{
+		gravity();
+		rocket->acceleration.x = rocket->force.x / rocket->mass;
+		rocket->acceleration.y = rocket->force.y / rocket->mass;
+
 		int i = 0;
 		switch (i)
 		{
 		case 0://Implicit Euler
-			b1->center.x += b1->velocity * cos(RAD(b1->directionAngle)) * dt;
-			b1->center.y += b1->velocity * sin(RAD(b1->directionAngle)) * dt;
-			b1->velocity += b1->acceleration * dt;
+			rocket->center.x += rocket->velocity.x * dt;
+			rocket->center.y += rocket->velocity.y * dt;
+			rocket->velocity.x += rocket->acceleration.x * dt;
+			rocket->velocity.y += rocket->acceleration.y * dt;
 			break;
 		case 1://Symplectic Euler
-			b1->velocity += b1->acceleration * dt;
-			b1->center.x += b1->velocity * cos(RAD(b1->directionAngle)) * dt;
-			b1->center.y += b1->velocity * sin(RAD(b1->directionAngle)) * dt;
+			rocket->velocity.x += rocket->acceleration.x * dt;
+			rocket->velocity.y += rocket->acceleration.y * dt;
+			rocket->center.x += rocket->velocity.x * dt;
+			rocket->center.y += rocket->velocity.y * dt;
 			break;
 		case 2://Velocity-Verlet
-			
+			rocket->center.x += (rocket->velocity.x *dt) + (0.5f*rocket->acceleration.x)*(dt*dt);
+			rocket->center.y += (rocket->velocity.y * dt) + (0.5f*rocket->acceleration.y*(dt*dt));
 			break;
 		case 3://Störmer-Verlet.
 
@@ -259,7 +180,7 @@ public:
 			break;
 		}
 
-		b1->UpdateVertex();
+		rocket->UpdateVertex();
 	}
 
 	void Draw(SDL_Renderer* renderer)
@@ -267,7 +188,8 @@ public:
 		SDL_Rect defaultCamera{ camera.x,camera.y,WINDOW_WIDTH,WINDOW_HEIGHT };
 		SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
 		SDL_RenderDrawRect(renderer, &defaultCamera);
-		b1->Draw(renderer, camera);
+		rocket->Draw(renderer, camera);
+		earth->Draw(renderer, camera);
 
 	}
 
@@ -278,6 +200,23 @@ public:
 
 	void OnCollision()
 	{
+
+	}
+	void secondLaw()
+	{
+		//rocket->force = rocket->mass * rocket->acceleration;
+	}
+	void gravity()
+	{
+		//if (onEarth)
+		{
+			float r = norm(rocket->center, earth->center);
+			rocket->gravity.x = (-G * (((rocket->mass) * (earth->mass)) / (r * r)) * (rocket->center.x - earth->center.x));
+			rocket->gravity.y = -G * (((rocket->mass) * (earth->mass)) / (r * r)) * (rocket->center.y-earth->center.y);
+
+			rocket->force = { rocket->gravity.x, rocket->gravity.y };
+
+		}
 
 	}
 };
@@ -383,9 +322,9 @@ public:
 		physicsBox.Update(dt);
 
 		static char title[256];
-		sprintf_s(title, 256, "fps(%d) dt(%.4f) | mouse{%d|%d|%d|%d}",
+		sprintf_s(title, 256, "fps(%d) dt(%.4f) | mouse{%d|%d|%d|%d|	PLAYER: %.f %.f}",
 			fps, dt,
-			mouse.x, mouse.y, mouse.stateL, mouse.stateR);
+			mouse.x, mouse.y, mouse.stateL, mouse.stateR,physicsBox.rocket->center.x,physicsBox.rocket->center.y);
 		SDL_SetWindowTitle(window, title);
 	}
 
