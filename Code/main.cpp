@@ -6,8 +6,7 @@
 //http://geomalgorithms.com/a03-_inclusion.html
 
 #define FPS 60
-#define _dt (1000/FPS)/1000
-//dt_30_60_120_144{0.0333,0.0167,0.0083,0.00694}
+#define _dt (1000/FPS)
 
 #define RELEASE(x) { delete x; x = nullptr; }
 #define RELEASE_ARRAY(x) { delete[] x; x = nullptr; }
@@ -20,12 +19,6 @@
 struct Mouse { int x, y, offsx, offsy, stateL, stateR; };
 
 struct fPoint { float x, y; };
-
-struct vertexbool
-{
-	fPoint v;
-	bool in;
-};
 
 void DrawfLine(SDL_Renderer* renderer, fPoint p0, fPoint p1)
 {
@@ -54,8 +47,8 @@ struct Timer
 	Uint32 time;
 	Timer() { Start(); };
 	void Start() { time = SDL_GetTicks(); };
-	/*inline*/Uint32 msRead() { return time; };
-	/*inline*/float sRead() { return float(time / 1000); };
+	/*inline*/Uint32 msRead() { return (SDL_GetTicks() - time); };
+	/*inline*/float sRead() { return float((SDL_GetTicks() - time) / 1000.f); };
 };
 
 /*
@@ -90,13 +83,11 @@ public:
 	{
 		ListItem<tdata>* dataItem = new ListItem<tdata>(item);
 
+		end->next = dataItem;
+		dataItem->prev = end;
+		end = dataItem;
 		dataItem->next = start;
 		start->prev = dataItem;
-		start = dataItem;
-
-		dataItem->prev = end;
-		end->next = dataItem;
-		end = dataItem;
 
 		++size;
 		return dataItem;
@@ -165,30 +156,42 @@ public:
 	float radius;
 	fPoint* vertex;
 
-	fPoint velocity;
 	float directionAngle;
 	float rotationAngle;
+	float velocity;
+	float acceleration;
+	float force;
+	float mass;
 
-	Body(int n, float x, float y, float r, float vx, float vy, float da, float ra)
+	Body(int n, float x, float y, float r, float da, float ra, float v, float a, float f, float m)
 	{
 		nsides = n;
 		center = { x,y };
 		radius = r;
 		vertex = new fPoint[nsides];
+		UpdateVertex();
+		velocity = v;
+		directionAngle = da;
+		rotationAngle = ra;
+		
+	}
+	~Body() {};
+
+	void UpdateVertex()
+	{
 		for (int i = 0; i < nsides; i++)
 		{
 			vertex[i].x = center.x + radius * cos(RAD((360 / nsides) * i));
 			vertex[i].y = center.y + radius * sin(RAD((360 / nsides) * i));
 		}
 	}
-	~Body() {};
 
 	void Draw(SDL_Renderer* renderer)
 	{
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-		for (int i = 0; i < sizeof(vertex) - 1; i++)
+		for (int i = 0; i < nsides - 1; i++)
 			DrawfLine(renderer, vertex[i], vertex[i + 1]);
-		DrawfLine(renderer, vertex[sizeof(vertex) - 1], vertex[0]);
+		DrawfLine(renderer, vertex[nsides - 1], vertex[0]);
 
 		SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
 		fPoint p2{ center.x + 100 * cos(RAD(directionAngle)),center.y + 100 * sin(RAD(directionAngle)) };
@@ -201,43 +204,55 @@ class Physics
 {
 public:
 
-	Body* b1 = new Body(4, 100.f, 100.f, 50.f, 0.f, 0.f, 0.f, 0.f);
+	Body* b1 = new Body(10, 100.f, 100.f, 50.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f);
 
 	Physics() {};
 	~Physics() {};
 
 	void Input(Mouse _mouse, int* _keyboard)
 	{
-		float increment = 0.1f;
-
-		if (_keyboard[SDL_SCANCODE_LEFT]) b1->directionAngle -= increment;
-		if (_keyboard[SDL_SCANCODE_RIGHT]) b1->directionAngle += increment;
-
-		if (_keyboard[SDL_SCANCODE_Z]) b1->rotationAngle -= increment;
-		if (_keyboard[SDL_SCANCODE_X]) b1->rotationAngle += increment;
-
-		if (_keyboard[SDL_SCANCODE_UP])
-		{
-			b1->velocity.x += increment * cos(b1->directionAngle);
-			b1->velocity.y += increment * sin(b1->directionAngle);
-		}
-		if (_keyboard[SDL_SCANCODE_DOWN])
-		{
-			b1->velocity.x -= increment * cos(b1->directionAngle);
-			b1->velocity.y -= increment * sin(b1->directionAngle);
-		}
+		if (_keyboard[SDL_SCANCODE_1]) b1->velocity += 0.1f;
+		if (_keyboard[SDL_SCANCODE_2]) b1->velocity -= 0.1f;
+		if (_keyboard[SDL_SCANCODE_3]) b1->acceleration += 0.1f;
+		if (_keyboard[SDL_SCANCODE_4]) b1->acceleration -= 0.1f;
 
 		if (_keyboard[SDL_SCANCODE_R]) b1->center = { WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 };
-		if (_keyboard[SDL_SCANCODE_T]) b1->velocity = { 0.f,0.f };
+		if (_keyboard[SDL_SCANCODE_T]) b1->velocity = 0.f;
+
+
+		float increment = 1.0f;
+		if (_keyboard[SDL_SCANCODE_C]) b1->directionAngle -= increment;
+		if (_keyboard[SDL_SCANCODE_V]) b1->directionAngle += increment;
+		if (_keyboard[SDL_SCANCODE_Z]) b1->rotationAngle -= increment;
+		if (_keyboard[SDL_SCANCODE_X]) b1->rotationAngle += increment;
 	}
 
-	void Update(float dt)
+	void Update(float dt)//step
 	{
-		//=====FIX=====
-		dt = 0.006944f;
-		//=====FIX=====
+		int i = 0;
+		switch (i)
+		{
+		case 0://Implicit Euler
+			b1->center.x += b1->velocity * cos(RAD(b1->directionAngle)) * dt;
+			b1->center.y += b1->velocity * sin(RAD(b1->directionAngle)) * dt;
+			b1->velocity += b1->acceleration * dt;
+			break;
+		case 1://Symplectic Euler
+			b1->velocity += b1->acceleration * dt;
+			b1->center.x += b1->velocity * cos(RAD(b1->directionAngle)) * dt;
+			b1->center.y += b1->velocity * sin(RAD(b1->directionAngle)) * dt;
+			break;
+		case 2://Velocity-Verlet
+			
+			break;
+		case 3://Störmer-Verlet.
 
+			break;
+		default:
+			break;
+		}
 
+		b1->UpdateVertex();
 	}
 
 	void Draw(SDL_Renderer* renderer)
@@ -246,6 +261,15 @@ public:
 
 	}
 
+	void Collide(Body* b0, Body* b1)
+	{
+
+	}
+
+	void OnCollision()
+	{
+
+	}
 };
 
 //=================================================================================================
@@ -274,7 +298,7 @@ public:
 	{
 		SDL_Init(SDL_INIT_VIDEO);
 		window = SDL_CreateWindow("Physics Box", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
-		renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED/*);//*/ | SDL_RENDERER_PRESENTVSYNC);
+		renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);//*/ | SDL_RENDERER_PRESENTVSYNC);
 
 		mouse = { 0,0,0,0,0,0 };
 
@@ -334,6 +358,7 @@ public:
 	{
 		dt = timer.sRead();
 		timer.Start();
+		if (dt < _dt) SDL_Delay(_dt - dt);
 		//if (_dt - dt > 0) SDL_Delay(_dt - dt);
 
 		fpsCount++;
@@ -348,10 +373,9 @@ public:
 		physicsBox.Update(dt);
 
 		static char title[256];
-		sprintf_s(title, 256, "fps(%d) | mouse{%d|%d|%d|%d} b1{velocity{%.1f,%.1f},directionAngle{%.1f},rotationAngle{%.1f}",
-			fps,
-			mouse.x, mouse.y, mouse.stateL, mouse.stateR,
-			physicsBox.b1->velocity.x, physicsBox.b1->velocity.y, physicsBox.b1->directionAngle, physicsBox.b1->rotationAngle);
+		sprintf_s(title, 256, "fps(%d) dt(%.4f) | mouse{%d|%d|%d|%d}",
+			fps, dt,
+			mouse.x, mouse.y, mouse.stateL, mouse.stateR);
 		SDL_SetWindowTitle(window, title);
 	}
 
