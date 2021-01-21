@@ -20,9 +20,9 @@ struct Mouse { int x, y, offsx, offsy, stateL, stateR; };
 
 struct fPoint { float x, y; };
 
-void DrawfLine(SDL_Renderer* renderer, fPoint p0, fPoint p1)
+void DrawfLine(SDL_Renderer* renderer, fPoint camera, fPoint p0, fPoint p1)
 {
-	SDL_RenderDrawLine(renderer, p0.x, p0.y, p1.x, p1.y);
+	SDL_RenderDrawLine(renderer, p0.x - camera.x, p0.y - camera.y, p1.x - camera.x, p1.y - camera.y);
 }
 
 struct fRect { float x, y, w, h; };
@@ -186,16 +186,16 @@ public:
 		}
 	}
 
-	void Draw(SDL_Renderer* renderer)
+	void Draw(SDL_Renderer* renderer, fPoint camera)
 	{
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 		for (int i = 0; i < nsides - 1; i++)
-			DrawfLine(renderer, vertex[i], vertex[i + 1]);
-		DrawfLine(renderer, vertex[nsides - 1], vertex[0]);
+			DrawfLine(renderer, camera, vertex[i], vertex[i + 1]);
+		DrawfLine(renderer, camera, vertex[nsides - 1], vertex[0]);
 
 		SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
 		fPoint p2{ center.x + 100 * cos(RAD(directionAngle)),center.y + 100 * sin(RAD(directionAngle)) };
-		DrawfLine(renderer, center, p2);
+		DrawfLine(renderer, camera, center, p2);
 	}
 
 };
@@ -204,19 +204,26 @@ class Physics
 {
 public:
 
-	Body* b1 = new Body(10, 100.f, 100.f, 50.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f);
+	Body* b1 = new Body(10, 300.f, 300.f, 50.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f);
+
+	fPoint camera{ 0.f,0.f };
 
 	Physics() {};
 	~Physics() {};
 
 	void Input(Mouse _mouse, int* _keyboard)
 	{
+		if (_keyboard[SDL_SCANCODE_W]) camera.y -= 1.f;
+		if (_keyboard[SDL_SCANCODE_S]) camera.y += 1.f;
+		if (_keyboard[SDL_SCANCODE_A]) camera.x -= 1.f;
+		if (_keyboard[SDL_SCANCODE_D]) camera.x += 1.f;
+
 		if (_keyboard[SDL_SCANCODE_1]) b1->velocity += 0.1f;
 		if (_keyboard[SDL_SCANCODE_2]) b1->velocity -= 0.1f;
 		if (_keyboard[SDL_SCANCODE_3]) b1->acceleration += 0.1f;
 		if (_keyboard[SDL_SCANCODE_4]) b1->acceleration -= 0.1f;
 
-		if (_keyboard[SDL_SCANCODE_R]) b1->center = { WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 };
+		if (_keyboard[SDL_SCANCODE_R]) b1->center = { 300,300 };
 		if (_keyboard[SDL_SCANCODE_T]) b1->velocity = 0.f;
 
 
@@ -257,7 +264,10 @@ public:
 
 	void Draw(SDL_Renderer* renderer)
 	{
-		b1->Draw(renderer);
+		SDL_Rect defaultCamera{ camera.x,camera.y,WINDOW_WIDTH,WINDOW_HEIGHT };
+		SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+		SDL_RenderDrawRect(renderer, &defaultCamera);
+		b1->Draw(renderer, camera);
 
 	}
 
