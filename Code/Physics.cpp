@@ -2,17 +2,24 @@
 
 Physics::Physics()
 {
-	rocket = new Body(4, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(25000.f), PIXEL_TO_METERS(2500.0f), 0.f, 0.f, 10000.0f);
-	earth = new Body(50, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(70000.f), PIXEL_TO_METERS(30000.0f), 0.f, 0.f, 500000.0f);
+	rocket = new Body(4, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(25000.f), PIXEL_TO_METERS(2500.0f), 0.f, 0.f, 10000.0f);//2500
+	earth = new Body(50, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(70000.f), PIXEL_TO_METERS(30000.0f), 0.f, 0.f, 500000.0f);//30000
 }
 Physics::~Physics() {};
 
 void Physics::Input(Mouse _mouse, int* _keyboard)
 {
-	if (_keyboard[SDL_SCANCODE_W]) camera.y -= 1.f;
-	if (_keyboard[SDL_SCANCODE_S]) camera.y += 1.f;
-	if (_keyboard[SDL_SCANCODE_A]) camera.x -= 1.f;
-	if (_keyboard[SDL_SCANCODE_D]) camera.x += 1.f;
+	//KeyStates::IDLE_0,DOWN_1,REPEAT_2,UP_3
+
+	if (_mouse.stateL == 1)
+	{
+		rocket->center = { float(_mouse.x),float(_mouse.y) };
+	}
+
+	if (_keyboard[SDL_SCANCODE_W]) camera.y -= 10.f;
+	if (_keyboard[SDL_SCANCODE_S]) camera.y += 10.f;
+	if (_keyboard[SDL_SCANCODE_A]) camera.x -= 10.f;
+	if (_keyboard[SDL_SCANCODE_D]) camera.x += 10.f;
 
 	if (_keyboard[SDL_SCANCODE_UP]) rocket->velocity.x += 0.1f;
 	if (_keyboard[SDL_SCANCODE_DOWN]) rocket->velocity.y -= 0.1f;
@@ -20,7 +27,7 @@ void Physics::Input(Mouse _mouse, int* _keyboard)
 //	if (_keyboard[SDL_SCANCODE_4]) rocket->acceleration -= 0.1f;
 
 	if (_keyboard[SDL_SCANCODE_R]) rocket->center = { 300,300 };
-	//if (_keyboard[SDL_SCANCODE_T]) rocket->velocity = 0.f;
+	if (_keyboard[SDL_SCANCODE_T]) rocket->velocity = { 0.f,0.f };
 
 
 	float increment = 1.0f;
@@ -79,16 +86,21 @@ void Physics::Collide(Body* b0, Body* b1)
 	//b0 = spaceship
 	if (b0 != nullptr && b1 != nullptr)
 	{
-		if (norm(b0->center, b1->center) < (b0->radius + b1->radius))
+		float dist = norm(b0->center, b1->center);
+		if (dist < (b0->radius + b1->radius))
 		{
-			OnCollision();
+			rocket->velocity = { 0.f,0.f };
+			float vx = (rocket->center.x - earth->center.x) / dist;
+			float vy = (rocket->center.y - earth->center.y) / dist;
+			rocket->center.x = earth->center.x + (earth->radius + rocket->radius) * cos(acos(vx));
+			rocket->center.y = earth->center.y + (earth->radius + rocket->radius) * sin(asin(vy));
 		}
 	}
 }
 
 void Physics::OnCollision()
 {
-	rocket->velocity = { 0.f,0.f };
+	
 }
 void Physics::secondLaw()
 {
