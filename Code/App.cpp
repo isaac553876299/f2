@@ -79,9 +79,9 @@ void App::Update()
 	physicsBox.Update(dt);
 
 	static char title[256];
-	sprintf_s(title, 256, "fps(%d) dt(%.4f) | mouse{%d|%d|%d|%d|	PLAYER: %.f %.f}",
+	sprintf_s(title, 256, "fps(%d) dt(%.4f) | mouse{%d|%d|%d|%d|	PLAYER: %.f %.f | GRAVITY X: %.2f  GRAVITY Y: %.2f}",
 		fps, dt,
-		mouse.x, mouse.y, mouse.stateL, mouse.stateR, physicsBox.rocket->center.x, physicsBox.rocket->center.y);
+		mouse.x, mouse.y, mouse.stateL, mouse.stateR, physicsBox.rocket->center.x, physicsBox.rocket->center.y, physicsBox.rocket->gravity.x, physicsBox.rocket->gravity.y);
 	SDL_SetWindowTitle(window, title);
 }
 

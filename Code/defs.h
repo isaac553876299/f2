@@ -13,7 +13,7 @@
 #define RELEASE(x) { delete x; x = nullptr; }
 #define RELEASE_ARRAY(x) { delete[] x; x = nullptr; }
 
-#define WINDOW_WIDTH 720
+#define WINDOW_WIDTH 850
 #define WINDOW_HEIGHT 920
 
 #define GRAVITYEARTH 9.8
@@ -25,7 +25,7 @@
 #define METERS_TO_PIXELS(m) ((int) floor(PIXELS_PER_METER * m))
 #define PIXEL_TO_METERS(p)  ((float) METER_PER_PIXEL * p)
 
-#define G pow(10,-2)*6.6
+#define G pow(10,-1)*6.6
 
 #define RAD(a) (a*3.14/180)
 

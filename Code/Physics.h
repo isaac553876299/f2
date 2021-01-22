@@ -33,7 +33,6 @@ public:
 		directionAngle = da;
 		rotationAngle = ra;
 		mass = m;
-
 	}
 	~Body() {};
 
@@ -76,6 +75,7 @@ class Physics
 public:
 	Body* rocket = nullptr;
 	Body* earth = nullptr;
+	Body* moon = nullptr;
 
 	fPoint camera{ 0.f,0.f };
 
@@ -95,6 +95,7 @@ public:
 	void gravity();
 	void calculateForces();
 	void motorImpulse(float dt);
+	void springs();
 };
 
 #endif
