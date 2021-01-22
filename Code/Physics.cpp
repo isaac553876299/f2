@@ -61,6 +61,7 @@ void Physics::Update(float dt)//step
 	}
 
 	rocket->UpdateVertex();
+	Collide(rocket, earth);
 }
 
 void Physics::Draw(SDL_Renderer* renderer)
@@ -75,12 +76,19 @@ void Physics::Draw(SDL_Renderer* renderer)
 
 void Physics::Collide(Body* b0, Body* b1)
 {
-
+	//b0 = spaceship
+	if (b0 != nullptr && b1 != nullptr)
+	{
+		if (norm(b0->center, b1->center) < (b0->radius + b1->radius))
+		{
+			OnCollision();
+		}
+	}
 }
 
 void Physics::OnCollision()
 {
-
+	rocket->velocity = { 0.f,0.f };
 }
 void Physics::secondLaw()
 {

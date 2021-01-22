@@ -10,6 +10,7 @@ public:
 	fPoint center;
 	float radius;
 	fPoint* vertex;
+	fPoint* circle;
 
 	float directionAngle;
 	float rotationAngle;
@@ -24,6 +25,7 @@ public:
 		nsides = n;
 		center = { x,y };
 		radius = r;
+		circle = new fPoint[360];
 		vertex = new fPoint[nsides];
 		UpdateVertex();
 		directionAngle = da;
@@ -40,6 +42,11 @@ public:
 			vertex[i].x = center.x + radius * cos(RAD((360 / nsides) * i));
 			vertex[i].y = center.y + radius * sin(RAD((360 / nsides) * i));
 		}
+		for (int i = 0; i < 360; i++)
+		{
+			circle[i].x = center.x + radius * cos(RAD(i));
+			circle[i].y = center.y + radius * sin(RAD(i));
+		}
 	}
 
 	void Draw(SDL_Renderer* renderer, fPoint camera)
@@ -52,6 +59,13 @@ public:
 		SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
 		fPoint p2{ center.x + 100 * cos(RAD(directionAngle)),center.y + 100 * sin(RAD(directionAngle)) };
 		DrawfLine(renderer, camera, center, p2);
+
+		SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+		for (int i = 0; i < 359; i++)
+		{
+			DrawfLine(renderer, camera, circle[i], circle[i + 1]);
+		}
+		DrawfLine(renderer, camera, circle[359], circle[0]);
 	}
 };
 
