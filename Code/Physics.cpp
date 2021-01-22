@@ -2,9 +2,12 @@
 
 Physics::Physics()
 {
-	rocket = new Body(4, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(25000.f), PIXEL_TO_METERS(2500.0f), 0.f, 0.f, 10000.0f);//2500
-	earth = new Body(50, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(70000.f), PIXEL_TO_METERS(30000.0f), 0.f, 0.f, 500000.0f);//30000
-	moon = new Body(50, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(-1000000.f), PIXEL_TO_METERS(15000.0f), 0.f, 0.f, 50000.0f);
+	rocket = new Body(4, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(25000.f), PIXEL_TO_METERS(2500.0f), 0.f, 0.f, 10000.0f);
+	//earth
+	planets[0] = new Body(50, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(70000.f), PIXEL_TO_METERS(30000.0f), 0.f, 0.f, 500000.0f);
+	//moon
+	planets[1] = new Body(50, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(-1000000.f), PIXEL_TO_METERS(15000.0f), 0.f, 0.f, 50000.0f);
+
 }
 Physics::~Physics() {};
 
@@ -79,7 +82,10 @@ void Physics::Update(float dt)//step
 
 	
 	rocket->UpdateVertex();
-	Collide(rocket, earth);
+	for (int i = 0; i < 5; i++)
+	{
+		Collide(rocket, planets[i]);
+	}
 	camera.x = rocket->center.x - (WINDOW_WIDTH / 2);
 	camera.y = rocket->center.y - (WINDOW_HEIGHT / 2);
 }
@@ -88,11 +94,15 @@ void Physics::Draw(SDL_Renderer* renderer)
 {
 	SDL_Rect defaultCamera{ camera.x,camera.y,WINDOW_WIDTH,WINDOW_HEIGHT };
 	SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-	DrawfLine(renderer, camera, rocket->center, earth->center);
-	DrawfLine(renderer, camera, rocket->center, moon->center);
+	for (int i = 0; i < 5; i++)
+	{
+		if (planets[i] != nullptr)
+		{
+			planets[i]->Draw(renderer, camera);
+			DrawfLine(renderer, camera, rocket->center, planets[i]->center);
+		}
+	}
 	rocket->Draw(renderer, camera);
-	earth->Draw(renderer, camera);
-	moon->Draw(renderer, camera);
 }
 
 void Physics::Collide(Body* b0, Body* b1)
@@ -104,10 +114,10 @@ void Physics::Collide(Body* b0, Body* b1)
 		if (dist < (b0->radius + b1->radius))
 		{
 			rocket->velocity = { 0.f,0.f };
-			float vx = (rocket->center.x - earth->center.x) / dist;
-			float vy = (rocket->center.y - earth->center.y) / dist;
-			rocket->center.x = earth->center.x + (earth->radius + rocket->radius) * cos(acos(vx));
-			rocket->center.y = earth->center.y + (earth->radius + rocket->radius) * sin(asin(vy));
+			float vx = (rocket->center.x - b1->center.x) / dist;
+			float vy = (rocket->center.y - b1->center.y) / dist;
+			rocket->center.x = b1->center.x + (b1->radius + rocket->radius) * cos(acos(vx));
+			rocket->center.y = b1->center.y + (b1->radius + rocket->radius) * sin(asin(vy));
 		}
 	}
 }
@@ -118,16 +128,21 @@ void Physics::OnCollision()
 }
 void Physics::secondLaw()
 {
-	//rocket->force = rocket->mass * rocket->acceleration;
+
 }
 void Physics::gravity()
-{	//if (onEarth)
+{
+	fPoint grav = { 0.f,0.f };
+	for (int i = 0; i < 5; i++)
 	{
-		float r = norm(rocket->center, earth->center);
-		float r2 = norm(rocket->center, moon->center);
-		rocket->gravity.x = (-G * (((rocket->mass) * (earth->mass)) / (r * r)) * (rocket->center.x - earth->center.x)); -(-G * (((rocket->mass) * (moon->mass)) / (r2 * r2)) * (rocket->center.x - moon->center.x));
-		rocket->gravity.y = (-G * (((rocket->mass) * (earth->mass)) / (r * r)) * (rocket->center.y - earth->center.y)); -(-G * (((rocket->mass) * (moon->mass)) / (r2 * r2)) * (rocket->center.y - moon->center.y));
+		if (planets[i] != nullptr)
+		{
+			float r = norm(rocket->center, planets[i]->center);
+			grav.x += (-G * (((rocket->mass) * (planets[i]->mass)) / (r * r)) * (rocket->center.x - planets[i]->center.x));
+			grav.y += (-G * (((rocket->mass) * (planets[i]->mass)) / (r * r)) * (rocket->center.y - planets[i]->center.y));
+		}
 	}
+	rocket->gravity = grav;
 }
 
 void Physics::motorImpulse(float dt)

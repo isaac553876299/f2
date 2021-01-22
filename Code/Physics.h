@@ -77,6 +77,8 @@ public:
 	Body* earth = nullptr;
 	Body* moon = nullptr;
 
+	Body* planets[5];
+
 	fPoint camera{ 0.f,0.f };
 
 	Physics();
