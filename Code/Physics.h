@@ -21,6 +21,8 @@ public:
 	fPoint gravity;
 	fPoint impulse;
 	fPoint impulseForce = {0,0};
+	float xForces;
+	float yForces;
 
 	Body(int n, float x, float y, float r, float da, float ra, float m)
 	{
@@ -74,8 +76,6 @@ class Physics
 {
 public:
 	Body* rocket = nullptr;
-	Body* earth = nullptr;
-	Body* moon = nullptr;
 
 	Body* planets[5];
 
@@ -95,9 +95,13 @@ public:
 	void OnCollision();
 	void secondLaw();
 	void gravity();
+	void thirdLaw();
 	void calculateForces();
 	void motorImpulse(float dt);
-	void springs();
+	void kinematicEnergy();
+	void potentialEnergy();
+
+	bool moonLanded = false;
 };
 
 #endif

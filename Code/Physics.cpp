@@ -6,7 +6,7 @@ Physics::Physics()
 	//earth
 	planets[0] = new Body(50, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(70000.f), PIXEL_TO_METERS(30000.0f), 0.f, 0.f, 500000.0f);
 	//moon
-	planets[1] = new Body(50, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(-1000000.f), PIXEL_TO_METERS(15000.0f), 0.f, 0.f, 50000.0f);
+	planets[1] = new Body(50, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(-100000.f), PIXEL_TO_METERS(15000.0f), 0.f, 0.f, 250000.0f);
 
 }
 Physics::~Physics() {};
@@ -30,10 +30,15 @@ void Physics::Input(Mouse _mouse, int* _keyboard)
 		rocket->impulseForce.x = 600.0f * cos(RAD(rocket->directionAngle));
 		rocket->impulseForce.y = 600.0f * sin(RAD(rocket->directionAngle));
 	}
+	else if (_keyboard[SDL_SCANCODE_L])
+	{
+		rocket->impulseForce.x = -600.0f * cos(RAD(rocket->directionAngle));
+		rocket->impulseForce.y = -600.0f * sin(RAD(rocket->directionAngle));
+	}
 	else
 	{
-		rocket->impulseForce.x = 0.0f;
-		rocket->impulseForce.y = 0.0f;
+		rocket->impulseForce.x = 0;
+		rocket->impulseForce.y = 0;
 	}
 
 	if (_keyboard[SDL_SCANCODE_R]) rocket->center = { 300,300 };
@@ -53,6 +58,15 @@ void Physics::Update(float dt)//step
 
 	rocket->acceleration.x = rocket->force.x / rocket->mass;
 	rocket->acceleration.y = rocket->force.y / rocket->mass;
+
+	if (rocket->velocity.y >= 600)
+	{
+		rocket->velocity.y = 600;
+	}
+	if (rocket->velocity.y <= -600)
+	{
+		rocket->velocity.y = -600;
+	}
 
 	int i = 0;
 	switch (i)
@@ -84,7 +98,11 @@ void Physics::Update(float dt)//step
 	rocket->UpdateVertex();
 	for (int i = 0; i < 5; i++)
 	{
-		Collide(rocket, planets[i]);
+		if (planets[i] != nullptr)
+		{
+			Collide(rocket, planets[i]);
+		}
+			
 	}
 	camera.x = rocket->center.x - (WINDOW_WIDTH / 2);
 	camera.y = rocket->center.y - (WINDOW_HEIGHT / 2);
@@ -108,16 +126,37 @@ void Physics::Draw(SDL_Renderer* renderer)
 void Physics::Collide(Body* b0, Body* b1)
 {
 	//b0 = spaceship
-	if (b0 != nullptr && b1 != nullptr)
+	for (int i = 0; i < 5; i++)
 	{
-		float dist = norm(b0->center, b1->center);
-		if (dist < (b0->radius + b1->radius))
+		//b0 = rocket;
+		//b1 = planets[i];
+		if (b0 != nullptr && b1 != nullptr)
 		{
-			rocket->velocity = { 0.f,0.f };
-			float vx = (rocket->center.x - b1->center.x) / dist;
-			float vy = (rocket->center.y - b1->center.y) / dist;
-			rocket->center.x = b1->center.x + (b1->radius + rocket->radius) * cos(acos(vx));
-			rocket->center.y = b1->center.y + (b1->radius + rocket->radius) * sin(asin(vy));
+			float dist = norm(b0->center, b1->center);
+			if (dist < (b0->radius + b1->radius))
+			{
+				if (!moonLanded)
+				{
+					rocket->velocity = { 0.f,0.f };
+				}
+				float vx = (rocket->center.x - b1->center.x) / dist;
+				float vy = (rocket->center.y - b1->center.y) / dist;
+				rocket->center.x = b1->center.x + (b1->radius + rocket->radius) * cos(acos(vx));
+				rocket->center.y = b1->center.y + (b1->radius + rocket->radius) * sin(asin(vy));
+
+				if (b1 == planets[1])
+				{
+					moonLanded = true;
+				}
+				else
+				{
+					moonLanded = false;
+				}
+				if (moonLanded)
+				{
+					rocket->velocity = { 1.0f,1.0f };
+				}
+			}
 		}
 	}
 }
@@ -152,10 +191,13 @@ void Physics::motorImpulse(float dt)
 }
 void Physics::calculateForces()
 {
-	float xForces;
-	float yForces;
-	xForces = rocket->gravity.x + rocket->impulse.x;
-	yForces = rocket->gravity.y + rocket->impulse.y;
+	rocket->xForces = rocket->gravity.x + rocket->impulse.x;
+	rocket->yForces = rocket->gravity.y + rocket->impulse.y;
 
-	rocket->force = { xForces,yForces };
+	rocket->force = { rocket->xForces,rocket->yForces };
+}
+void Physics::thirdLaw()
+{
+	rocket->force.x = -rocket->gravity.x;
+	rocket->force.y = -rocket->gravity.y;
 }
