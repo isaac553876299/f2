@@ -100,6 +100,7 @@ public:
 	void motorImpulse(float dt);
 	void kinematicEnergy();
 	void potentialEnergy();
+	void aerolift();
 
 	bool moonLanded = false;
 };

@@ -6,7 +6,7 @@ Physics::Physics()
 	//earth
 	planets[0] = new Body(50, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(70000.f), PIXEL_TO_METERS(30000.0f), 0.f, 0.f, 500000.0f);
 	//moon
-	planets[1] = new Body(50, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(-100000.f), PIXEL_TO_METERS(15000.0f), 0.f, 0.f, 250000.0f);
+	planets[1] = new Body(50, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(-120000.f), PIXEL_TO_METERS(15000.0f), 0.f, 0.f, 250000.0f);
 
 }
 Physics::~Physics() {};
