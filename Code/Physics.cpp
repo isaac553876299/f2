@@ -21,16 +21,27 @@ void Physics::Input(Mouse _mouse, int* _keyboard)
 	if (_keyboard[SDL_SCANCODE_A]) camera.x -= 10.f;
 	if (_keyboard[SDL_SCANCODE_D]) camera.x += 10.f;
 
+	if (_keyboard[SDL_SCANCODE_M])
+	{
+		rocket->impulseForce.x = 300.0f * cos(RAD(rocket->directionAngle));
+		rocket->impulseForce.y = 300.0f * sin(RAD(rocket->directionAngle));
+	}
+	else
+	{
+		rocket->impulseForce.x = 0.0f;
+		rocket->impulseForce.y = 0.0f;
+	}
+
 	if (_keyboard[SDL_SCANCODE_UP]) rocket->velocity.x += 0.1f;
 	if (_keyboard[SDL_SCANCODE_DOWN]) rocket->velocity.y -= 0.1f;
 	//if (_keyboard[SDL_SCANCODE_3]) rocket->acceleration += 0.1f;
-//	if (_keyboard[SDL_SCANCODE_4]) rocket->acceleration -= 0.1f;
+	//if (_keyboard[SDL_SCANCODE_4]) rocket->acceleration -= 0.1f;
 
 	if (_keyboard[SDL_SCANCODE_R]) rocket->center = { 300,300 };
 	if (_keyboard[SDL_SCANCODE_T]) rocket->velocity = { 0.f,0.f };
 
 
-	float increment = 1.0f;
+	float increment = 3.0f;
 	if (_keyboard[SDL_SCANCODE_LEFT]) rocket->directionAngle -= increment;
 	if (_keyboard[SDL_SCANCODE_RIGHT]) rocket->directionAngle += increment;
 }
@@ -38,6 +49,9 @@ void Physics::Input(Mouse _mouse, int* _keyboard)
 void Physics::Update(float dt)//step
 {
 	gravity();
+	motorImpulse(dt);
+	calculateForces();
+
 	rocket->acceleration.x = rocket->force.x / rocket->mass;
 	rocket->acceleration.y = rocket->force.y / rocket->mass;
 
@@ -107,16 +121,26 @@ void Physics::secondLaw()
 	//rocket->force = rocket->mass * rocket->acceleration;
 }
 void Physics::gravity()
-{
-	//if (onEarth)
+{	//if (onEarth)
 	{
 		float r = norm(rocket->center, earth->center);
 		rocket->gravity.x = (-G * (((rocket->mass) * (earth->mass)) / (r * r)) * (rocket->center.x - earth->center.x));
 		rocket->gravity.y = -G * (((rocket->mass) * (earth->mass)) / (r * r)) * (rocket->center.y - earth->center.y);
-
-		rocket->force = { rocket->gravity.x, rocket->gravity.y };
-
 	}
-
 }
 
+void Physics::motorImpulse(float dt)
+{
+		rocket->impulse.x = rocket->impulseForce.x * rocket->mass;
+		rocket->impulse.y = rocket->impulseForce.y * rocket->mass;
+}
+
+void Physics::calculateForces()
+{
+	float xForces;
+	float yForces;
+	xForces = rocket->gravity.x + rocket->impulse.x;
+	yForces = rocket->gravity.y + rocket->impulse.y;
+
+	rocket->force = { xForces,yForces };
+}

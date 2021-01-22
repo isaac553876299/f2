@@ -19,6 +19,8 @@ public:
 	fPoint force;
 	float mass;
 	fPoint gravity;
+	fPoint impulse;
+	fPoint impulseForce = {0,0};
 
 	Body(int n, float x, float y, float r, float da, float ra, float m)
 	{
@@ -91,6 +93,8 @@ public:
 	void OnCollision();
 	void secondLaw();
 	void gravity();
+	void calculateForces();
+	void motorImpulse(float dt);
 };
 
 #endif
