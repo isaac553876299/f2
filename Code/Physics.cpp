@@ -2,13 +2,15 @@
 
 Physics::Physics()
 {
-	rocket = new Body(4, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(25000.f), PIXEL_TO_METERS(2500.0f), 0.f, 0.f, 20000.0f);
+	rocket = new Body(7, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(25000.f), PIXEL_TO_METERS(2500.0f), 0.f, 0.f, 20000.0f);
 	//earth
 	planets[0] = new Body(50, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(70000.f), PIXEL_TO_METERS(30000.0f), 0.f, 0.f, 500000.0f);
 	//moon
 	planets[1] = new Body(50, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(-180000.f), PIXEL_TO_METERS(15000.0f), 0.f, 0.f, 300000.0f);
 	//fluid
 	planets[2] = new Body(25, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(10000), PIXEL_TO_METERS(10000.0f), 0.f, 0.f, 10000.0f);
+	//atmosphere
+	atmos = new Body(50, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(70000.f), PIXEL_TO_METERS(50000.0f), 0.f, 0.f, 0.0f);
 }
 Physics::~Physics() {};
 
@@ -65,6 +67,8 @@ void Physics::Input(Mouse _mouse, int* _keyboard)
 	float increment = 3.0f;
 	if (_keyboard[SDL_SCANCODE_LEFT]) rocket->directionAngle -= increment;
 	if (_keyboard[SDL_SCANCODE_RIGHT]) rocket->directionAngle += increment;
+
+	if (_keyboard[SDL_SCANCODE_D] == 3) debugCollisions = !debugCollisions;
 }
 
 void Physics::Update(float dt)//step
@@ -120,16 +124,20 @@ void Physics::Update(float dt)//step
 
 void Physics::Draw(SDL_Renderer* renderer, SDL_Texture* textures[10])
 {
-	SDL_Rect defaultCamera{ camera.x,camera.y,WINDOW_WIDTH,WINDOW_HEIGHT };
-	SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+	rocket->Draw(renderer, camera, debugCollisions);
 	for (int i = 0; i < 5; i++)
 	{
 		if (planets[i] != nullptr)
 		{
-			planets[i]->Draw(renderer, camera);
+			planets[i]->Draw(renderer, camera, debugCollisions);
+			SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
 			DrawfLine(renderer, camera, rocket->center, planets[i]->center);
 		}
 	}
+
+	atmos->Draw(renderer, camera, debugCollisions);
+
+	//sidebar
 	SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
 	float prop = WINDOW_HEIGHT * abs(planets[1]->center.y - rocket->center.y) / abs(planets[1]->center.y - planets[0]->center.y);
 	SDL_Rect pos1 = { 50,prop,10,10 };
@@ -139,9 +147,11 @@ void Physics::Draw(SDL_Renderer* renderer, SDL_Texture* textures[10])
 	SDL_RenderFillRect(renderer, &pos2);
 	SDL_Rect pos3 = { 50,WINDOW_HEIGHT - 50,10,10 };
 	SDL_RenderFillRect(renderer, &pos3);
-	rocket->Draw(renderer, camera);
+
 	SDL_Rect tex = { (rocket->center.x - camera.x - rocket->radius),(rocket->center.y - camera.y - rocket->radius), 2 * rocket->radius, 2 * rocket->radius };
 	SDL_RenderCopy(renderer, textures[0], 0, &tex);
+
+
 	SDL_RenderPresent(renderer);
 }
 
@@ -228,19 +238,19 @@ void Physics::buoyancy()
 	float dist = norm(rocket->center, planets[2]->center);
 	if (dist < (rocket->radius + planets[2]->radius))
 	{
-		rocket->dens.x = (density * (rocket->gravity.x) * (3, 1415 * (rocket->radius * rocket->radius)) - (rocket->mass * rocket->gravity.x))/20000000;
-		rocket->dens.y = (density * (rocket->gravity.y) * (3, 1415 * (rocket->radius * rocket->radius)) - (rocket->mass * rocket->gravity.y))/20000000;
+		rocket->buo.x = (density * (rocket->gravity.x) * (3, 1415 * (rocket->radius * rocket->radius)) - (rocket->mass * rocket->gravity.x))/20000000;
+		rocket->buo.y = (density * (rocket->gravity.y) * (3, 1415 * (rocket->radius * rocket->radius)) - (rocket->mass * rocket->gravity.y))/20000000;
 	}
 	else
 	{
-		rocket->dens.x = 0;
-		rocket->dens.y = 0;
+		rocket->buo.x = 0;
+		rocket->buo.y = 0;
 	}
 }
 void Physics::calculateForces()
 {
-	rocket->xForces = rocket->gravity.x + rocket->impulse.x + rocket->dragForce.x + rocket->dens.x;
-	rocket->yForces = rocket->gravity.y + rocket->impulse.y + rocket->dragForce.y + rocket->dens.y;
+	rocket->xForces = rocket->gravity.x + rocket->impulse.x + rocket->dragForce.x + rocket->buo.x;
+	rocket->yForces = rocket->gravity.y + rocket->impulse.y + rocket->dragForce.y + rocket->buo.y;
 
 	rocket->force = { rocket->xForces,rocket->yForces };
 }

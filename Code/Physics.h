@@ -24,7 +24,7 @@ public:
 	fPoint impulseForce = {0,0};
 	float xForces;
 	float yForces;
-	fPoint dens;
+	fPoint buo;
 
 	Body(int n, float x, float y, float r, float da, float ra, float m)
 	{
@@ -54,7 +54,7 @@ public:
 		}
 	}
 
-	void Draw(SDL_Renderer* renderer, fPoint camera)
+	void Draw(SDL_Renderer* renderer, fPoint camera, bool debugCollisions)
 	{
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 		for (int i = 0; i < nsides - 1; i++)
@@ -66,23 +66,28 @@ public:
 		DrawfLine(renderer, camera, center, p2);
 
 		SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
-		for (int i = 0; i < 359; i++)
+		if (debugCollisions)
 		{
-			DrawfLine(renderer, camera, circle[i], circle[i + 1]);
+			for (int i = 0; i < 359; i++)
+			{
+				DrawfLine(renderer, camera, circle[i], circle[i + 1]);
+			}
+			DrawfLine(renderer, camera, circle[359], circle[0]);
 		}
-		DrawfLine(renderer, camera, circle[359], circle[0]);
 	}
 };
 class Physics
 {
 public:
 	Body* rocket = nullptr;
+	Body* atmos = nullptr;
 
 	Body* planets[5];
 
 	fPoint camera{ 0.f,0.f };
 
 	bool spaced = false;
+	bool debugCollisions = false;
 
 	Physics();
 	~Physics();
