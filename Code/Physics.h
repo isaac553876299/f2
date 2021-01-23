@@ -82,6 +82,8 @@ public:
 
 	fPoint camera{ 0.f,0.f };
 
+	bool spaced = false;
+
 	Physics();
 	~Physics();
 

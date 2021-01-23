@@ -86,13 +86,15 @@ void App::Update()
 	physicsBox.Update(dt);
 
 	static char title[256];
-	sprintf_s(title, 256, "fps(%d) dt(%.4f) | mouse{%d|%d|%d|%d|	PLAYER: %.f %.f | GRAVITY X: %.2f  GRAVITY Y: %.2f} | VELOCITY: x%.2f y%.2f | DRAG FORCE X: %.f DRAG FORCE Y: %.f",
+	sprintf_s(title, 256, "fps(%d) dt(%.4f) | PLAYER: c(%.f|%.f) da(%.f) v(%.f|%.f) a(%.f|%.f) f(%.f|%.f) i(%.f|%.f) if(%.f|%.f)",
 		fps, dt,
-		mouse.x, mouse.y, mouse.stateL, mouse.stateR,
 		physicsBox.rocket->center.x, physicsBox.rocket->center.y,
-		physicsBox.rocket->gravity.x, physicsBox.rocket->gravity.y,
+		physicsBox.rocket->directionAngle,
 		physicsBox.rocket->velocity.x, physicsBox.rocket->velocity.y,
-		physicsBox.rocket->dragForce.x, physicsBox.rocket->velocity.y);
+		physicsBox.rocket->acceleration.x, physicsBox.rocket->acceleration.y,
+		physicsBox.rocket->force.x, physicsBox.rocket->force.y,
+		physicsBox.rocket->impulse.x, physicsBox.rocket->impulse.y,
+		physicsBox.rocket->impulseForce.x, physicsBox.rocket->impulseForce.y);
 	SDL_SetWindowTitle(window, title);
 }
 

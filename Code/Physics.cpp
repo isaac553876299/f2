@@ -6,7 +6,8 @@ Physics::Physics()
 	//earth
 	planets[0] = new Body(50, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(70000.f), PIXEL_TO_METERS(30000.0f), 0.f, 0.f, 500000.0f);
 	//moon
-	planets[1] = new Body(50, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(-180000.f), PIXEL_TO_METERS(15000.0f), 0.f, 0.f, 1000000.0f);
+	planets[1] = new Body(50, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(-180000.f), PIXEL_TO_METERS(15000.0f), 0.f, 0.f, 300000.0f);
+	//fluid
 	planets[2] = new Body(25, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(10000), PIXEL_TO_METERS(10000.0f), 0.f, 0.f, 10000.0f);
 }
 Physics::~Physics() {};
@@ -25,6 +26,7 @@ void Physics::Input(Mouse _mouse, int* _keyboard)
 	if (_keyboard[SDL_SCANCODE_A]) camera.x -= 10.f;
 	if (_keyboard[SDL_SCANCODE_D]) camera.x += 10.f;
 
+	spaced = _keyboard[SDL_SCANCODE_SPACE];
 	if (_keyboard[SDL_SCANCODE_SPACE])
 	{
 		rocket->impulseForce.x = 600.0f * cos(RAD(rocket->directionAngle));
@@ -155,7 +157,7 @@ void Physics::Collide(Body* b0, Body* b1)
 			float dist = norm(b0->center, b1->center);
 			if (dist < (b0->radius + b1->radius))
 			{
-				if (!moonLanded)
+				if (!moonLanded && !spaced)
 				{
 					rocket->velocity = { 0.f,0.f };
 				}
@@ -172,9 +174,9 @@ void Physics::Collide(Body* b0, Body* b1)
 				{
 					moonLanded = false;
 				}
-				if (moonLanded)
+				if (moonLanded && !spaced)
 				{
-					rocket->velocity = { 1.0f,1.0f };
+					rocket->velocity = { 0.f,0.f };
 				}
 			}
 		}
