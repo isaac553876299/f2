@@ -24,6 +24,7 @@ public:
 	fPoint impulseForce = {0,0};
 	float xForces;
 	float yForces;
+	fPoint dens;
 
 	Body(int n, float x, float y, float r, float da, float ra, float m)
 	{
@@ -72,7 +73,6 @@ public:
 		DrawfLine(renderer, camera, circle[359], circle[0]);
 	}
 };
-
 class Physics
 {
 public:
@@ -102,9 +102,9 @@ public:
 	void kinematicEnergy();
 	void potentialEnergy();
 	void aeroDrag();
+	void buoyancy();
 	SDL_Rect posRect;
 
 	bool moonLanded = false;
 };
-
 #endif

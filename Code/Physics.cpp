@@ -2,13 +2,12 @@
 
 Physics::Physics()
 {
-	rocket = new Body(4, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(25000.f), PIXEL_TO_METERS(2500.0f), 0.f, 0.f, 10000.0f);
+	rocket = new Body(4, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(25000.f), PIXEL_TO_METERS(2500.0f), 0.f, 0.f, 20000.0f);
 	//earth
 	planets[0] = new Body(50, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(70000.f), PIXEL_TO_METERS(30000.0f), 0.f, 0.f, 500000.0f);
 	//moon
-	planets[1] = new Body(50, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(-120000.f), PIXEL_TO_METERS(15000.0f), 0.f, 0.f, 250000.0f);
-
-
+	planets[1] = new Body(50, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(-180000.f), PIXEL_TO_METERS(15000.0f), 0.f, 0.f, 1000000.0f);
+	planets[2] = new Body(25, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(10000), PIXEL_TO_METERS(10000.0f), 0.f, 0.f, 10000.0f);
 }
 Physics::~Physics() {};
 
@@ -33,15 +32,30 @@ void Physics::Input(Mouse _mouse, int* _keyboard)
 	}
 	else if (_keyboard[SDL_SCANCODE_L])
 	{
-		rocket->impulseForce.x = -600.0f * cos(RAD(rocket->directionAngle));
-		rocket->impulseForce.y = -600.0f * sin(RAD(rocket->directionAngle));
+		rocket->impulseForce.x = -800.0f * cos(RAD(rocket->directionAngle));
+		rocket->impulseForce.y = -800.0f * sin(RAD(rocket->directionAngle));
 	}
 	else
 	{
 		rocket->impulseForce.x = 0;
 		rocket->impulseForce.y = 0;
 	}
-
+	if (rocket->velocity.y >= 700)
+	{
+		rocket->velocity.y = 700;
+	}
+	if (rocket->velocity.y <= -700)
+	{
+		rocket->velocity.y = -700;
+	}
+	if (rocket->velocity.x >= 700)
+	{
+		rocket->velocity.x = 700;
+	}
+	if (rocket->velocity.x <= -700)
+	{
+		rocket->velocity.x = -700;
+	}
 	if (_keyboard[SDL_SCANCODE_R]) rocket->center = { 300,300 };
 	if (_keyboard[SDL_SCANCODE_T]) rocket->velocity = { 0.f,0.f };
 
@@ -57,6 +71,7 @@ void Physics::Update(float dt)//step
 	motorImpulse(dt);
 	aeroDrag();
 	calculateForces();
+	buoyancy();
 
 	rocket->acceleration.x = rocket->force.x / rocket->mass;
 	rocket->acceleration.y = rocket->force.y / rocket->mass;
@@ -91,7 +106,7 @@ void Physics::Update(float dt)//step
 	rocket->UpdateVertex();
 	for (int i = 0; i < 5; i++)
 	{
-		if (planets[i] != nullptr)
+		if (planets[i] != nullptr && i!=2)
 		{
 			Collide(rocket, planets[i]);
 		}
@@ -116,7 +131,7 @@ void Physics::Draw(SDL_Renderer* renderer, SDL_Texture* textures[10])
 	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
 	SDL_Rect positionRect = { 50,250,10,(rocket->center.y)/10 };
 	SDL_RenderFillRect(renderer, &positionRect);
-	SDL_Rect prop = { (rocket->center.x-camera.x),(rocket->center.y-camera.y), 10, 30 };
+	SDL_Rect prop = { (rocket->center.x-camera.x),(rocket->center.y-camera.y), 20, 90 };
 	SDL_RenderFillRect(renderer, &prop);
 //	SDL_RenderDrawPoint(renderer, rocket->center.x, rocket->center.y);
 	rocket->Draw(renderer, camera);
@@ -191,13 +206,6 @@ void Physics::motorImpulse(float dt)
 		rocket->impulse.x = rocket->impulseForce.x * rocket->mass;
 		rocket->impulse.y = rocket->impulseForce.y * rocket->mass;
 }
-void Physics::calculateForces()
-{
-	rocket->xForces = rocket->gravity.x + rocket->impulse.x + rocket->dragForce.x;
-	rocket->yForces = rocket->gravity.y + rocket->impulse.y + rocket->dragForce.y;
-
-	rocket->force = { rocket->xForces,rocket->yForces };
-}
 void Physics::thirdLaw()
 {
 	rocket->force.x = -rocket->gravity.x;
@@ -205,8 +213,29 @@ void Physics::thirdLaw()
 }
 void Physics::aeroDrag()
 {
-	float S=sqrt(2*(rocket->radius*rocket->radius));
+	float S = sqrt(2 * (rocket->radius * rocket->radius));
 	float Cl = 0.2;
 	rocket->dragForce.x = -(0.5 * pA * (rocket->velocity.x * rocket->velocity.x) * S * Cl);
 	rocket->dragForce.y = -(0.5 * pA * (rocket->velocity.y * rocket->velocity.y) * S * Cl);
+}
+void Physics::buoyancy()
+{
+	float dist = norm(rocket->center, planets[2]->center);
+	if (dist < (rocket->radius + planets[2]->radius))
+	{
+		rocket->dens.x = (density * (rocket->gravity.x) * (3, 1415 * (rocket->radius * rocket->radius)) - (rocket->mass * rocket->gravity.x))/20000000;
+		rocket->dens.y = (density * (rocket->gravity.y) * (3, 1415 * (rocket->radius * rocket->radius)) - (rocket->mass * rocket->gravity.y))/20000000;
+	}
+	else
+	{
+		rocket->dens.x = 0;
+		rocket->dens.y = 0;
+	}
+}
+void Physics::calculateForces()
+{
+	rocket->xForces = rocket->gravity.x + rocket->impulse.x + rocket->dragForce.x + rocket->dens.x;
+	rocket->yForces = rocket->gravity.y + rocket->impulse.y + rocket->dragForce.y + rocket->dens.y;
+
+	rocket->force = { rocket->xForces,rocket->yForces };
 }

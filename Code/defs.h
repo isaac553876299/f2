@@ -11,6 +11,8 @@
 #define FPS 60
 #define _dt (1000/FPS)
 
+#define density 20
+
 #define RELEASE(x) { delete x; x = nullptr; }
 #define RELEASE_ARRAY(x) { delete[] x; x = nullptr; }
 
