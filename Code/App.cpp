@@ -86,7 +86,7 @@ void App::Update()
 	physicsBox.Update(dt);
 
 	static char title[256];
-	sprintf_s(title, 256, "fps(%d) dt(%.4f) | PLAYER: c(%.f|%.f) da(%.f) v(%.f|%.f) a(%.f|%.f) f(%.f|%.f) i(%.f|%.f) if(%.f|%.f)",
+	sprintf_s(title, 256, "fps(%d) dt(%.4f) | PLAYER: c(%.f|%.f) da(%.f) v(%.f|%.f) a(%.f|%.f) f(%.f|%.f) i(%.f|%.f) if(%.f|%.f) dg(%.f,%.f)",
 		fps, dt,
 		physicsBox.rocket->center.x, physicsBox.rocket->center.y,
 		physicsBox.rocket->directionAngle,
@@ -94,7 +94,8 @@ void App::Update()
 		physicsBox.rocket->acceleration.x, physicsBox.rocket->acceleration.y,
 		physicsBox.rocket->force.x, physicsBox.rocket->force.y,
 		physicsBox.rocket->impulse.x, physicsBox.rocket->impulse.y,
-		physicsBox.rocket->impulseForce.x, physicsBox.rocket->impulseForce.y);
+		physicsBox.rocket->impulseForce.x, physicsBox.rocket->impulseForce.y,
+		physicsBox.rocket->dragForce.x, physicsBox.rocket->dragForce.y);
 	SDL_SetWindowTitle(window, title);
 }
 
