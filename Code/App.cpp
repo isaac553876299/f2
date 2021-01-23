@@ -1,5 +1,6 @@
 #include "App.h"
-
+SDL_Texture* playerTex;
+const SDL_Rect* lol = { };
 App::App()
 {
 	SDL_Init(SDL_INIT_VIDEO);
@@ -16,7 +17,9 @@ App::App()
 	fpsCount = 0;
 	fps = 0;
 
-
+	SDL_Surface* tmpSurface = IMG_Load("Output/Textures/rocket.png");
+	playerTex = SDL_CreateTextureFromSurface(renderer, tmpSurface);
+	SDL_FreeSurface(tmpSurface);
 	textures[0] = IMG_LoadTexture(renderer, "Output/Textures/rocket.png");
 }
 
@@ -99,6 +102,8 @@ void App::Draw()
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_RenderClear(renderer);
 	physicsBox.Draw(renderer, textures);
+
+	SDL_RenderCopy(renderer, playerTex, NULL,NULL);
 
 	SDL_RenderPresent(renderer);
 }

@@ -128,12 +128,15 @@ void Physics::Draw(SDL_Renderer* renderer, SDL_Texture* textures[10])
 			DrawfLine(renderer, camera, rocket->center, planets[i]->center);
 		}
 	}
-	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-	SDL_Rect positionRect = { 50,250,10,(rocket->center.y)/10 };
-	SDL_RenderFillRect(renderer, &positionRect);
-	SDL_Rect prop = { (rocket->center.x-camera.x),(rocket->center.y-camera.y), 20, 90 };
-	SDL_RenderFillRect(renderer, &prop);
-//	SDL_RenderDrawPoint(renderer, rocket->center.x, rocket->center.y);
+	SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
+	float prop = WINDOW_HEIGHT * abs(planets[1]->center.y - rocket->center.y) / abs(planets[1]->center.y - planets[0]->center.y);
+	SDL_Rect pos1 = { 50,prop,10,10 };
+	SDL_RenderFillRect(renderer, &pos1);
+	SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255);
+	SDL_Rect pos2 = { 50,50,10,10 };
+	SDL_RenderFillRect(renderer, &pos2);
+	SDL_Rect pos3 = { 50,WINDOW_HEIGHT - 50,10,10 };
+	SDL_RenderFillRect(renderer, &pos3);
 	rocket->Draw(renderer, camera);
 	SDL_Rect tex = { (rocket->center.x - camera.x - rocket->radius),(rocket->center.y - camera.y - rocket->radius), 2 * rocket->radius, 2 * rocket->radius };
 	SDL_RenderCopy(renderer, textures[0], 0, &tex);
