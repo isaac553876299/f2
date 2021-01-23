@@ -25,7 +25,7 @@ void Physics::Input(Mouse _mouse, int* _keyboard)
 	if (_keyboard[SDL_SCANCODE_A]) camera.x -= 10.f;
 	if (_keyboard[SDL_SCANCODE_D]) camera.x += 10.f;
 
-	if (_keyboard[SDL_SCANCODE_M])
+	if (_keyboard[SDL_SCANCODE_SPACE])
 	{
 		rocket->impulseForce.x = 600.0f * cos(RAD(rocket->directionAngle));
 		rocket->impulseForce.y = 600.0f * sin(RAD(rocket->directionAngle));
@@ -124,6 +124,7 @@ void Physics::Draw(SDL_Renderer* renderer)
 	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
 	SDL_Rect positionRect = { 50,250,10,(rocket->center.y)/10 };
 	SDL_RenderFillRect(renderer, &positionRect);
+
 	SDL_RenderPresent(renderer);
 	rocket->Draw(renderer, camera);
 }
@@ -211,5 +212,5 @@ void Physics::aerolift()
 	float S=sqrt(2*(rocket->radius*rocket->radius));
 	float Cl = 0.2;
 	rocket->liftForce.x = (0.5 * pA * (rocket->velocity.x * rocket->velocity.x) * S * Cl);
-	rocket->liftForce.y = (0.5 * pA * (rocket->velocity.y* rocket->velocity.y) * S * Cl);
+	rocket->liftForce.y = (0.5 * pA * (rocket->velocity.y * rocket->velocity.y) * S * Cl);
 }
