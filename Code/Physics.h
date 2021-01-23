@@ -17,6 +17,7 @@ public:
 	fPoint velocity;
 	fPoint acceleration;
 	fPoint force;
+	fPoint liftForce;
 	float mass;
 	fPoint gravity;
 	fPoint impulse;
@@ -101,6 +102,7 @@ public:
 	void kinematicEnergy();
 	void potentialEnergy();
 	void aerolift();
+	SDL_Rect posRect;
 
 	bool moonLanded = false;
 };

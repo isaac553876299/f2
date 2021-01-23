@@ -54,19 +54,20 @@ void Physics::Update(float dt)//step
 {
 	gravity();
 	motorImpulse(dt);
+	aerolift();
 	calculateForces();
 
 	rocket->acceleration.x = rocket->force.x / rocket->mass;
 	rocket->acceleration.y = rocket->force.y / rocket->mass;
 
-	if (rocket->velocity.y >= 600)
-	{
-		rocket->velocity.y = 600;
-	}
-	if (rocket->velocity.y <= -600)
-	{
-		rocket->velocity.y = -600;
-	}
+	//if (rocket->velocity.y >= 600)
+	//{
+	//	rocket->velocity.y = 600;
+	//}
+	//if (rocket->velocity.y <= -600)
+	//{
+	//	rocket->velocity.y = -600;
+	//}
 
 	int i = 0;
 	switch (i)
@@ -120,6 +121,10 @@ void Physics::Draw(SDL_Renderer* renderer)
 			DrawfLine(renderer, camera, rocket->center, planets[i]->center);
 		}
 	}
+	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+	SDL_Rect positionRect = { 50,250,10,(rocket->center.y)/10 };
+	SDL_RenderFillRect(renderer, &positionRect);
+	SDL_RenderPresent(renderer);
 	rocket->Draw(renderer, camera);
 }
 
@@ -191,8 +196,8 @@ void Physics::motorImpulse(float dt)
 }
 void Physics::calculateForces()
 {
-	rocket->xForces = rocket->gravity.x + rocket->impulse.x;
-	rocket->yForces = rocket->gravity.y + rocket->impulse.y;
+	rocket->xForces = rocket->gravity.x + rocket->impulse.x+ rocket->liftForce.x;
+	rocket->yForces = rocket->gravity.y + rocket->impulse.y+rocket->liftForce.y;
 
 	rocket->force = { rocket->xForces,rocket->yForces };
 }
@@ -200,4 +205,11 @@ void Physics::thirdLaw()
 {
 	rocket->force.x = -rocket->gravity.x;
 	rocket->force.y = -rocket->gravity.y;
+}
+void Physics::aerolift()
+{
+	float S=sqrt(2*(rocket->radius*rocket->radius));
+	float Cl = 0.2;
+	rocket->liftForce.x = (0.5 * pA * (rocket->velocity.x * rocket->velocity.x) * S * Cl);
+	rocket->liftForce.y = (0.5 * pA * (rocket->velocity.y* rocket->velocity.y) * S * Cl);
 }

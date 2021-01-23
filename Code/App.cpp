@@ -79,12 +79,13 @@ void App::Update()
 	physicsBox.Update(dt);
 
 	static char title[256];
-	sprintf_s(title, 256, "fps(%d) dt(%.4f) | mouse{%d|%d|%d|%d|	PLAYER: %.f %.f | GRAVITY X: %.2f  GRAVITY Y: %.2f} | VELOCITY: x%.2f y%.2f",
+	sprintf_s(title, 256, "fps(%d) dt(%.4f) | mouse{%d|%d|%d|%d|	PLAYER: %.f %.f | GRAVITY X: %.2f  GRAVITY Y: %.2f} | VELOCITY: x%.2f y%.2f | LIFT FORCE X: %.f LIFT FORCE Y: %.f",
 		fps, dt,
 		mouse.x, mouse.y, mouse.stateL, mouse.stateR,
 		physicsBox.rocket->center.x, physicsBox.rocket->center.y,
 		physicsBox.rocket->gravity.x, physicsBox.rocket->gravity.y,
-		physicsBox.rocket->velocity.x, physicsBox.rocket->velocity.y);
+		physicsBox.rocket->velocity.x, physicsBox.rocket->velocity.y,
+		physicsBox.rocket->liftForce.x, physicsBox.rocket->velocity.y);
 	SDL_SetWindowTitle(window, title);
 }
 
@@ -93,7 +94,6 @@ void App::Draw()
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_RenderClear(renderer);
-
 	physicsBox.Draw(renderer);
 
 	SDL_RenderPresent(renderer);
