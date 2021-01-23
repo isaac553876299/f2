@@ -8,9 +8,13 @@ Physics::Physics()
 	//moon
 	planets[1] = new Body(50, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(-120000.f), PIXEL_TO_METERS(15000.0f), 0.f, 0.f, 250000.0f);
 
+
 }
 Physics::~Physics() {};
-
+void Physics::start(SDL_Renderer* renderer) 
+{
+	textures[0] = IMG_LoadTexture(renderer, "Output/Textures/rocket.png");
+}
 void Physics::Input(Mouse _mouse, int* _keyboard)
 {
 	//KeyStates::IDLE_0,DOWN_1,REPEAT_2,UP_3
@@ -115,11 +119,13 @@ void Physics::Draw(SDL_Renderer* renderer)
 	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
 	SDL_Rect positionRect = { 50,250,10,(rocket->center.y)/10 };
 	SDL_RenderFillRect(renderer, &positionRect);
-	SDL_Rect prop = { (rocket->center.x),(rocket->center.y), 10, 30 };
+	SDL_Rect prop = { (rocket->center.x-camera.x),(rocket->center.y-camera.y), 10, 30 };
 	SDL_RenderFillRect(renderer, &prop);
 //	SDL_RenderDrawPoint(renderer, rocket->center.x, rocket->center.y);
-	SDL_RenderPresent(renderer);
 	rocket->Draw(renderer, camera);
+	SDL_Rect tex = { (rocket->center.x - camera.x - rocket->radius),(rocket->center.y - camera.y - rocket->radius), 2 * rocket->radius, 2 * rocket->radius };
+	SDL_RenderCopy(renderer, textures[0], 0, &tex);
+	SDL_RenderPresent(renderer);
 }
 
 void Physics::Collide(Body* b0, Body* b1)

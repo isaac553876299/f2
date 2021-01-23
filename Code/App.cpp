@@ -3,9 +3,10 @@
 App::App()
 {
 	SDL_Init(SDL_INIT_VIDEO);
+	IMG_Init(IMG_INIT_PNG);
 	window = SDL_CreateWindow("Physics Box", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);//*/ | SDL_RENDERER_PRESENTVSYNC);
-
+	physicsBox.start(renderer);
 	mouse = { 0,0,0,0,0,0 };
 
 	for (auto i : keyboard) i = 0;

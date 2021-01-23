@@ -84,7 +84,7 @@ public:
 
 	Physics();
 	~Physics();
-
+	void start(SDL_Renderer* renderer);
 	void Input(Mouse _mouse, int* _keyboard);
 
 	void Update(float dt);
@@ -103,6 +103,7 @@ public:
 	void potentialEnergy();
 	void aeroDrag();
 	SDL_Rect posRect;
+	SDL_Texture* textures[10];
 
 	bool moonLanded = false;
 };
