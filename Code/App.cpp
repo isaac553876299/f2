@@ -6,7 +6,7 @@ App::App()
 	IMG_Init(IMG_INIT_PNG);
 	window = SDL_CreateWindow("Physics Box", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);//*/ | SDL_RENDERER_PRESENTVSYNC);
-	physicsBox.start(renderer);
+
 	mouse = { 0,0,0,0,0,0 };
 
 	for (auto i : keyboard) i = 0;
@@ -15,6 +15,9 @@ App::App()
 	seconds = SDL_GetTicks();
 	fpsCount = 0;
 	fps = 0;
+
+
+	textures[0] = IMG_LoadTexture(renderer, "Output/Textures/rocket.png");
 }
 
 App::~App()
@@ -95,7 +98,7 @@ void App::Draw()
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_RenderClear(renderer);
-	physicsBox.Draw(renderer);
+	physicsBox.Draw(renderer, textures);
 
 	SDL_RenderPresent(renderer);
 }

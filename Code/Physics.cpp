@@ -11,10 +11,7 @@ Physics::Physics()
 
 }
 Physics::~Physics() {};
-void Physics::start(SDL_Renderer* renderer) 
-{
-	textures[0] = IMG_LoadTexture(renderer, "Output/Textures/rocket.png");
-}
+
 void Physics::Input(Mouse _mouse, int* _keyboard)
 {
 	//KeyStates::IDLE_0,DOWN_1,REPEAT_2,UP_3
@@ -104,7 +101,7 @@ void Physics::Update(float dt)//step
 	camera.y = rocket->center.y - (WINDOW_HEIGHT / 2);
 }
 
-void Physics::Draw(SDL_Renderer* renderer)
+void Physics::Draw(SDL_Renderer* renderer, SDL_Texture* textures[10])
 {
 	SDL_Rect defaultCamera{ camera.x,camera.y,WINDOW_WIDTH,WINDOW_HEIGHT };
 	SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
