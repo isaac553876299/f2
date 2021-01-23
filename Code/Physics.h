@@ -17,7 +17,7 @@ public:
 	fPoint velocity;
 	fPoint acceleration;
 	fPoint force;
-	fPoint liftForce;
+	fPoint dragForce;
 	float mass;
 	fPoint gravity;
 	fPoint impulse;

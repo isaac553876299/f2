@@ -196,8 +196,8 @@ void Physics::motorImpulse(float dt)
 }
 void Physics::calculateForces()
 {
-	rocket->xForces = rocket->gravity.x + rocket->impulse.x+ rocket->liftForce.x;
-	rocket->yForces = rocket->gravity.y + rocket->impulse.y+rocket->liftForce.y;
+	rocket->xForces = rocket->gravity.x + rocket->impulse.x + rocket->dragForce.x;
+	rocket->yForces = rocket->gravity.y + rocket->impulse.y + rocket->dragForce.y;
 
 	rocket->force = { rocket->xForces,rocket->yForces };
 }
@@ -210,6 +210,6 @@ void Physics::aeroDrag()
 {
 	float S=sqrt(2*(rocket->radius*rocket->radius));
 	float Cl = 0.2;
-	rocket->liftForce.x = -(0.5 * pA * (rocket->velocity.x * rocket->velocity.x) * S * Cl);
-	rocket->liftForce.y = -(0.5 * pA * (rocket->velocity.y * rocket->velocity.y) * S * Cl);
+	rocket->dragForce.x = -(0.5 * pA * (rocket->velocity.x * rocket->velocity.x) * S * Cl);
+	rocket->dragForce.y = -(0.5 * pA * (rocket->velocity.y * rocket->velocity.y) * S * Cl);
 }
