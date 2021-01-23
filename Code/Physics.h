@@ -101,7 +101,7 @@ public:
 	void motorImpulse(float dt);
 	void kinematicEnergy();
 	void potentialEnergy();
-	void aerolift();
+	void aeroDrag();
 	SDL_Rect posRect;
 
 	bool moonLanded = false;

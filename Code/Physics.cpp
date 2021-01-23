@@ -54,39 +54,30 @@ void Physics::Update(float dt)//step
 {
 	gravity();
 	motorImpulse(dt);
-	aerolift();
+	aeroDrag();
 	calculateForces();
 
 	rocket->acceleration.x = rocket->force.x / rocket->mass;
 	rocket->acceleration.y = rocket->force.y / rocket->mass;
-
-	//if (rocket->velocity.y >= 600)
-	//{
-	//	rocket->velocity.y = 600;
-	//}
-	//if (rocket->velocity.y <= -600)
-	//{
-	//	rocket->velocity.y = -600;
-	//}
-
+	
 	int i = 0;
 	switch (i)
 	{
 	case 0://Implicit Euler
-		rocket->center.x += rocket->velocity.x * dt;
-		rocket->center.y += rocket->velocity.y * dt;
+		rocket->center.x += (rocket->velocity.x * dt);
+		rocket->center.y += (rocket->velocity.y * dt);
 		rocket->velocity.x += rocket->acceleration.x * dt;
 		rocket->velocity.y += rocket->acceleration.y * dt;
 		break;
 	case 1://Symplectic Euler
 		rocket->velocity.x += rocket->acceleration.x * dt;
 		rocket->velocity.y += rocket->acceleration.y * dt;
-		rocket->center.x += rocket->velocity.x * dt;
-		rocket->center.y += rocket->velocity.y * dt;
+		rocket->center.x += (rocket->velocity.x * dt);
+		rocket->center.y += (rocket->velocity.y * dt);
 		break;
 	case 2://Velocity-Verlet
-		rocket->center.x += (rocket->velocity.x * dt) + (0.5f * rocket->acceleration.x) * (dt * dt);
-		rocket->center.y += (rocket->velocity.y * dt) + (0.5f * rocket->acceleration.y * (dt * dt));
+		rocket->center.x += ((rocket->velocity.x * dt) + (0.5f * rocket->acceleration.x) * (dt * dt));
+		rocket->center.y += ((rocket->velocity.y * dt) + (0.5f * rocket->acceleration.y * (dt * dt)));
 		break;
 	case 3://Störmer-Verlet.
 
@@ -124,7 +115,9 @@ void Physics::Draw(SDL_Renderer* renderer)
 	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
 	SDL_Rect positionRect = { 50,250,10,(rocket->center.y)/10 };
 	SDL_RenderFillRect(renderer, &positionRect);
-
+	SDL_Rect prop = { (rocket->center.x),(rocket->center.y), 10, 30 };
+	SDL_RenderFillRect(renderer, &prop);
+//	SDL_RenderDrawPoint(renderer, rocket->center.x, rocket->center.y);
 	SDL_RenderPresent(renderer);
 	rocket->Draw(renderer, camera);
 }
@@ -147,8 +140,8 @@ void Physics::Collide(Body* b0, Body* b1)
 				}
 				float vx = (rocket->center.x - b1->center.x) / dist;
 				float vy = (rocket->center.y - b1->center.y) / dist;
-				rocket->center.x = b1->center.x + (b1->radius + rocket->radius) * cos(acos(vx));
-				rocket->center.y = b1->center.y + (b1->radius + rocket->radius) * sin(asin(vy));
+				rocket->center.x = (b1->center.x + (b1->radius + rocket->radius) * cos(acos(vx)));
+				rocket->center.y = (b1->center.y + (b1->radius + rocket->radius) * sin(asin(vy)));
 
 				if (b1 == planets[1])
 				{
@@ -207,10 +200,10 @@ void Physics::thirdLaw()
 	rocket->force.x = -rocket->gravity.x;
 	rocket->force.y = -rocket->gravity.y;
 }
-void Physics::aerolift()
+void Physics::aeroDrag()
 {
 	float S=sqrt(2*(rocket->radius*rocket->radius));
 	float Cl = 0.2;
-	rocket->liftForce.x = (0.5 * pA * (rocket->velocity.x * rocket->velocity.x) * S * Cl);
-	rocket->liftForce.y = (0.5 * pA * (rocket->velocity.y * rocket->velocity.y) * S * Cl);
+	rocket->liftForce.x = -(0.5 * pA * (rocket->velocity.x * rocket->velocity.x) * S * Cl);
+	rocket->liftForce.y = -(0.5 * pA * (rocket->velocity.y * rocket->velocity.y) * S * Cl);
 }
