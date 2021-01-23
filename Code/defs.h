@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cmath>
 #include "../SDL2-2.0.14/include/SDL.h"
+#include "../SDL2-2.0.14/include/SDL_image.h"
 //http://geomalgorithms.com/a03-_inclusion.html
 
 
