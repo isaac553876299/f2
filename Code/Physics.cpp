@@ -11,6 +11,8 @@ Physics::Physics()
 	planets[2] = new Body(25, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(10000), PIXEL_TO_METERS(10000.0f), 0.f, 0.f, 10000.0f);
 	//atmosphere
 	atmos = new Body(50, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(70000.f), PIXEL_TO_METERS(50000.0f), 0.f, 0.f, 0.0f);
+	//moon colision and crash
+	moonCrash = new Body(50, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(-180000.f), PIXEL_TO_METERS(18000.0f), 0.f, 0.f, 0.0f);
 }
 Physics::~Physics() {};
 
@@ -136,6 +138,7 @@ void Physics::Draw(SDL_Renderer* renderer, SDL_Texture* textures[10])
 	}
 
 	atmos->Draw(renderer, camera, debugCollisions);
+	moonCrash->Draw(renderer, camera, debugCollisions);
 
 	//sidebar
 	SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
@@ -254,6 +257,14 @@ void Physics::buoyancy()
 	{
 		rocket->buo.x = 0;
 		rocket->buo.y = 0;
+	}
+}
+void Physics::checkMoonColision()
+{
+	float dist = norm(rocket->center, planets[1]->center);
+	if (dist < moonCrash->radius + rocket->radius && rocket->velocity.x > 600 && rocket->velocity.y > 600)
+	{
+		SDL_Quit();
 	}
 }
 void Physics::calculateForces()

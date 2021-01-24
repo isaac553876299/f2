@@ -81,6 +81,7 @@ class Physics
 public:
 	Body* rocket = nullptr;
 	Body* atmos = nullptr;
+	Body* moonCrash = nullptr;
 
 	Body* planets[5];
 
@@ -110,7 +111,10 @@ public:
 	void potentialEnergy();
 	void aeroDrag();
 	void buoyancy();
+	void checkMoonColision();
 	SDL_Rect posRect;
+
+	bool moonCrashed = false;
 
 	bool moonLanded = false;
 };
