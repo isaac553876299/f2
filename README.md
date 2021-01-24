@@ -19,4 +19,7 @@
 ## Developers:
 - Isaac Colomer
 - Enric Morales
-- Isac Digón
+- Isaac Digón
+
+## Github repository
+- https://github.com/isaac553876299/f2
