@@ -167,7 +167,18 @@ void Physics::Draw(SDL_Renderer* renderer)
 		SDL_RenderFillRect(renderer, &pos1);
 	}
 
-	SDL_Rect tex = { (rocket->center.x - camera.x - rocket->radius),(rocket->center.y - camera.y - rocket->radius), 2 * rocket->radius, 2 * rocket->radius };
+
+	SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255);
+	float velR = norm(rocket->velocity) / 7;
+	fPoint p1{ rocket->center.x + velR * cos(RAD(rocket->directionAngle) + RAD(180) + RAD(0)),rocket->center.y + velR * sin(RAD(rocket->directionAngle) + RAD(180) + RAD(0)) };
+	fPoint p2{ rocket->center.x + velR * cos(RAD(rocket->directionAngle) + RAD(180) + RAD(10)),rocket->center.y + velR * sin(RAD(rocket->directionAngle) + RAD(180) + RAD(10)) };
+	fPoint p3{ rocket->center.x + velR * cos(RAD(rocket->directionAngle) + RAD(180) - RAD(10)),rocket->center.y + velR * sin(RAD(rocket->directionAngle) + RAD(180) - RAD(10)) };
+	DrawfLine(renderer, camera, rocket->center, p1);
+	DrawfLine(renderer, camera, rocket->center, p2);
+	DrawfLine(renderer, camera, rocket->center, p3);
+
+
+	//SDL_Rect tex = { (rocket->center.x - camera.x - rocket->radius),(rocket->center.y - camera.y - rocket->radius), 2 * rocket->radius, 2 * rocket->radius };
 	//SDL_RenderCopy(renderer, textures[0], 0, &tex);
 
 
@@ -176,9 +187,9 @@ void Physics::Draw(SDL_Renderer* renderer)
 	//SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
 	//SDL_RenderCopy(renderer, texture, NULL, NULL);
 
-	SDL_Surface* sur = IMG_Load("Output/Textures/rocket.png");
+	/*SDL_Surface* sur = IMG_Load("Output/Textures/rocket.png");
 	texture = SDL_CreateTextureFromSurface(renderer, sur);
-	SDL_RenderCopy(renderer, texture, NULL, NULL);
+	SDL_RenderCopy(renderer, texture, NULL, NULL);*/
 
 	SDL_RenderPresent(renderer);
 }
