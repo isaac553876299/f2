@@ -10,10 +10,21 @@ Physics::Physics()
 	planets[0] = new Body(50, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(70000.f), PIXEL_TO_METERS(30000.0f), 0.f, 0.f, 500000.0f);
 	//moon
 	planets[1] = new Body(50, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(-180000.f), PIXEL_TO_METERS(15000.0f), 0.f, 0.f, 300000.0f);
+	//win condition
+	wincon = new Body(50, PIXEL_TO_METERS(0.f), PIXEL_TO_METERS(-180000.f), PIXEL_TO_METERS(1000.0f), 0.f, 0.f, 0.0f);
 	//fluid
 	planets[2] = new Body(25, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(10000), PIXEL_TO_METERS(10000.0f), 0.f, 0.f, 10000.0f);
 	//atmosphere
 	atmos = new Body(50, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(70000.f), PIXEL_TO_METERS(50000.0f), 0.f, 0.f, 0.0f);
+	//rocks
+	planets[3] = new Body(8, PIXEL_TO_METERS(10000.f), PIXEL_TO_METERS(-100000), PIXEL_TO_METERS(2000.0f), 0.f, 0.f, 0.0f);
+	planets[4] = new Body(8, PIXEL_TO_METERS(15000.f), PIXEL_TO_METERS(-100000), PIXEL_TO_METERS(2000.0f), 0.f, 0.f, 0.0f);
+	planets[5] = new Body(8, PIXEL_TO_METERS(20000.f), PIXEL_TO_METERS(-100000), PIXEL_TO_METERS(2000.0f), 0.f, 0.f, 0.0f);
+	planets[6] = new Body(8, PIXEL_TO_METERS(25000.f), PIXEL_TO_METERS(-100000), PIXEL_TO_METERS(2000.0f), 0.f, 0.f, 0.0f);
+	planets[7] = new Body(8, PIXEL_TO_METERS(30000.f), PIXEL_TO_METERS(-100000), PIXEL_TO_METERS(2000.0f), 0.f, 0.f, 0.0f);
+	planets[8] = new Body(8, PIXEL_TO_METERS(35000.f), PIXEL_TO_METERS(-100000), PIXEL_TO_METERS(2000.0f), 0.f, 0.f, 0.0f);
+	planets[9] = new Body(8, PIXEL_TO_METERS(40000.f), PIXEL_TO_METERS(-100000), PIXEL_TO_METERS(2000.0f), 0.f, 0.f, 0.0f);
+	planets[10] = new Body(8, PIXEL_TO_METERS(45000.f), PIXEL_TO_METERS(-100000), PIXEL_TO_METERS(2000.0f), 0.f, 0.f, 0.0f);
 }
 Physics::~Physics() {};
 
@@ -114,7 +125,7 @@ void Physics::Update(float dt)//step
 
 	
 	rocket->UpdateVertex();
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < 20; i++)
 	{
 		if (planets[i] != nullptr && i!=2)
 		{
@@ -129,7 +140,7 @@ void Physics::Update(float dt)//step
 void Physics::Draw(SDL_Renderer* renderer)
 {
 	rocket->Draw(renderer, camera, debugCollisions);
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < 20; i++)
 	{
 		if (planets[i] != nullptr)
 		{
@@ -140,6 +151,7 @@ void Physics::Draw(SDL_Renderer* renderer)
 	}
 
 	atmos->Draw(renderer, camera, debugCollisions);
+	wincon->Draw(renderer, camera, debugCollisions);
 
 	//sidebar
 	SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
@@ -171,7 +183,7 @@ void Physics::Draw(SDL_Renderer* renderer)
 void Physics::Collide(Body* b0, Body* b1)
 {
 	//b0 = spaceship
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < 20; i++)
 	{
 		//b0 = rocket;
 		//b1 = planets[i];
@@ -274,7 +286,12 @@ void Physics::checkMoonColision()
 	float dist = norm(rocket->center, planets[1]->center);
 	if ((dist < (rocket->radius + planets[1]->radius)) && (abs(norm(rocket->velocity)) > 600))
 	{
-		printf("Collided");
+		printf("crash");
+	}
+	float dist2 = norm(rocket->center, wincon->center);
+	if (dist2 < (rocket->radius + wincon->radius))
+	{
+		printf("win");
 	}
 }
 void Physics::calculateForces()

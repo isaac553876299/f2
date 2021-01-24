@@ -70,4 +70,6 @@ struct Timer
 	/*inline*/float sRead() { return float((SDL_GetTicks() - time) / 1000.f); };
 };
 
+typedef unsigned int uint;
+
 #endif

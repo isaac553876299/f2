@@ -81,9 +81,9 @@ class Physics
 public:
 	Body* rocket = nullptr;
 	Body* atmos = nullptr;
-	Body* moonCrash = nullptr;
+	Body* wincon = nullptr;
 
-	Body* planets[5];
+	Body* planets[20];
 
 	fPoint camera{ 0.f,0.f };
 
