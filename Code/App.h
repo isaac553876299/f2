@@ -23,7 +23,7 @@ public:
 	int keyboard[200];
 
 	Physics physicsBox;
-	SDL_Texture* rockettex;
+	//SDL_Texture* rockettex;
 
 	App();
 

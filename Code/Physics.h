@@ -90,6 +90,9 @@ public:
 	bool spaced = false;
 	bool debugCollisions = false;
 
+	TTF_Font* font;
+	SDL_Texture* texture;
+
 	Physics();
 	~Physics();
 

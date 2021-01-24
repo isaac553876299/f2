@@ -5,6 +5,7 @@ App::App()
 {
 	SDL_Init(SDL_INIT_VIDEO);
 	IMG_Init(IMG_INIT_PNG);
+	TTF_Init();
 	window = SDL_CreateWindow("Physics Box", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);//*/ | SDL_RENDERER_PRESENTVSYNC);
 
@@ -17,14 +18,16 @@ App::App()
 	fpsCount = 0;
 	fps = 0;
 
-	SDL_Surface* tmpSurface = IMG_Load("Output/Textures/rocket.png");
-	playerTex = SDL_CreateTextureFromSurface(renderer, tmpSurface);
-	SDL_FreeSurface(tmpSurface);
-	rockettex = IMG_LoadTexture(renderer, "Output/Textures/rocket.png");
+	//SDL_Surface* tmpSurface = IMG_Load("Output/Textures/rocket.png");
+	//playerTex = SDL_CreateTextureFromSurface(renderer, tmpSurface);
+	//SDL_FreeSurface(tmpSurface);
+	//rockettex = IMG_LoadTexture(renderer, "Output/Textures/rocket.png");
 }
 
 App::~App()
 {
+	TTF_Quit();
+	IMG_Quit();
 	SDL_Quit();
 }
 
@@ -105,8 +108,6 @@ void App::Draw()
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_RenderClear(renderer);
 	physicsBox.Draw(renderer);
-
-	SDL_RenderCopy(renderer, rockettex, NULL,NULL);
 
 	SDL_RenderPresent(renderer);
 }

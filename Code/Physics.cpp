@@ -2,6 +2,9 @@
 
 Physics::Physics()
 {
+	//TTF_Font* font = TTF_OpenFont("digital7regular.ttf", 25);
+
+
 	rocket = new Body(7, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(25000.f), PIXEL_TO_METERS(2500.0f), 0.f, 0.f, 20000.0f);
 	//earth
 	planets[0] = new Body(50, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(70000.f), PIXEL_TO_METERS(30000.0f), 0.f, 0.f, 500000.0f);
@@ -152,6 +155,15 @@ void Physics::Draw(SDL_Renderer* renderer)
 	SDL_Rect tex = { (rocket->center.x - camera.x - rocket->radius),(rocket->center.y - camera.y - rocket->radius), 2 * rocket->radius, 2 * rocket->radius };
 	//SDL_RenderCopy(renderer, textures[0], 0, &tex);
 
+
+	//SDL_Color color = { 255, 255, 255 };
+	//SDL_Surface* surface = TTF_RenderText_Solid(font, "Welcome to Gigi Labs", { 255,255,0 });
+	//SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+	//SDL_RenderCopy(renderer, texture, NULL, NULL);
+
+	SDL_Surface* sur = IMG_Load("Output/Textures/rocket.png");
+	texture = SDL_CreateTextureFromSurface(renderer, sur);
+	SDL_RenderCopy(renderer, texture, NULL, NULL);
 
 	SDL_RenderPresent(renderer);
 }
