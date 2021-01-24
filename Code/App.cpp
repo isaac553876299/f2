@@ -110,4 +110,3 @@ void App::Draw()
 
 	SDL_RenderPresent(renderer);
 }
-
