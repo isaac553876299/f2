@@ -20,7 +20,7 @@ App::App()
 	SDL_Surface* tmpSurface = IMG_Load("Output/Textures/rocket.png");
 	playerTex = SDL_CreateTextureFromSurface(renderer, tmpSurface);
 	SDL_FreeSurface(tmpSurface);
-	textures[0] = IMG_LoadTexture(renderer, "Output/Textures/rocket.png");
+	rockettex = IMG_LoadTexture(renderer, "Output/Textures/rocket.png");
 }
 
 App::~App()
@@ -104,9 +104,9 @@ void App::Draw()
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_RenderClear(renderer);
-	physicsBox.Draw(renderer, textures);
+	physicsBox.Draw(renderer);
 
-	SDL_RenderCopy(renderer, playerTex, NULL,NULL);
+	SDL_RenderCopy(renderer, rockettex, NULL,NULL);
 
 	SDL_RenderPresent(renderer);
 }

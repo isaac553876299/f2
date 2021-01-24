@@ -97,7 +97,7 @@ public:
 
 	void Update(float dt);
 
-	void Draw(SDL_Renderer* renderer, SDL_Texture* textures[10]);
+	void Draw(SDL_Renderer* renderer);
 
 	void Collide(Body* b0, Body* b1);
 

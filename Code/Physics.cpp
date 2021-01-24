@@ -123,7 +123,7 @@ void Physics::Update(float dt)//step
 	camera.y = rocket->center.y - (WINDOW_HEIGHT / 2);
 }
 
-void Physics::Draw(SDL_Renderer* renderer, SDL_Texture* textures[10])
+void Physics::Draw(SDL_Renderer* renderer)
 {
 	rocket->Draw(renderer, camera, debugCollisions);
 	for (int i = 0; i < 5; i++)
@@ -150,7 +150,7 @@ void Physics::Draw(SDL_Renderer* renderer, SDL_Texture* textures[10])
 	SDL_RenderFillRect(renderer, &pos3);
 
 	SDL_Rect tex = { (rocket->center.x - camera.x - rocket->radius),(rocket->center.y - camera.y - rocket->radius), 2 * rocket->radius, 2 * rocket->radius };
-	SDL_RenderCopy(renderer, textures[0], 0, &tex);
+	//SDL_RenderCopy(renderer, textures[0], 0, &tex);
 
 
 	SDL_RenderPresent(renderer);
@@ -260,11 +260,7 @@ void Physics::buoyancy()
 void Physics::checkMoonColision()
 {
 	float dist = norm(rocket->center, planets[1]->center);
-	if (dist < (rocket->radius + planets[1]->radius) && (rocket->velocity.x > 600 || (rocket->velocity.y > 600)))
-	{
-		printf("Collided");
-	}
-	if (dist < (rocket->radius + planets[1]->radius) && (rocket->velocity.x < -600 || (rocket->velocity.y < -600)))
+	if ((dist < (rocket->radius + planets[1]->radius)) && (abs(norm(rocket->velocity)) > 600))
 	{
 		printf("Collided");
 	}
