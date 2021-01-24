@@ -11,20 +11,20 @@ Physics::Physics()
 	//moon
 	planets[1] = new Body(50, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(-180000.f), PIXEL_TO_METERS(15000.0f), 0.f, 0.f, 300000.0f);
 	//win condition
-	wincon = new Body(50, PIXEL_TO_METERS(0.f), PIXEL_TO_METERS(-180000.f), PIXEL_TO_METERS(1000.0f), 0.f, 0.f, 0.0f);
+	wincon = new Body(50, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(-200000.f), PIXEL_TO_METERS(1000.0f), 0.f, 0.f, 0.0f);
 	//fluid
 	planets[2] = new Body(25, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(10000), PIXEL_TO_METERS(10000.0f), 0.f, 0.f, 10000.0f);
 	//atmosphere
 	atmos = new Body(50, PIXEL_TO_METERS(18000.f), PIXEL_TO_METERS(70000.f), PIXEL_TO_METERS(50000.0f), 0.f, 0.f, 0.0f);
 	//rocks
-	planets[3] = new Body(8, PIXEL_TO_METERS(10000.f), PIXEL_TO_METERS(-100000), PIXEL_TO_METERS(2000.0f), 0.f, 0.f, 0.0f);
-	planets[4] = new Body(8, PIXEL_TO_METERS(15000.f), PIXEL_TO_METERS(-100000), PIXEL_TO_METERS(2000.0f), 0.f, 0.f, 0.0f);
-	planets[5] = new Body(8, PIXEL_TO_METERS(20000.f), PIXEL_TO_METERS(-100000), PIXEL_TO_METERS(2000.0f), 0.f, 0.f, 0.0f);
-	planets[6] = new Body(8, PIXEL_TO_METERS(25000.f), PIXEL_TO_METERS(-100000), PIXEL_TO_METERS(2000.0f), 0.f, 0.f, 0.0f);
-	planets[7] = new Body(8, PIXEL_TO_METERS(30000.f), PIXEL_TO_METERS(-100000), PIXEL_TO_METERS(2000.0f), 0.f, 0.f, 0.0f);
-	planets[8] = new Body(8, PIXEL_TO_METERS(35000.f), PIXEL_TO_METERS(-100000), PIXEL_TO_METERS(2000.0f), 0.f, 0.f, 0.0f);
-	planets[9] = new Body(8, PIXEL_TO_METERS(40000.f), PIXEL_TO_METERS(-100000), PIXEL_TO_METERS(2000.0f), 0.f, 0.f, 0.0f);
-	planets[10] = new Body(8, PIXEL_TO_METERS(45000.f), PIXEL_TO_METERS(-100000), PIXEL_TO_METERS(2000.0f), 0.f, 0.f, 0.0f);
+	planets[3] = new Body(8, PIXEL_TO_METERS(-45000.f), PIXEL_TO_METERS(-130000), PIXEL_TO_METERS(2000.0f), 0.f, 0.f, 0.0f);
+	planets[4] = new Body(8, PIXEL_TO_METERS(-30000.f), PIXEL_TO_METERS(-100000), PIXEL_TO_METERS(2000.0f), 0.f, 0.f, 0.0f);
+	planets[5] = new Body(8, PIXEL_TO_METERS(-15000.0f), PIXEL_TO_METERS(-150000), PIXEL_TO_METERS(2000.0f), 0.f, 0.f, 0.0f);
+	planets[6] = new Body(8, PIXEL_TO_METERS(0.0f), PIXEL_TO_METERS(-120000), PIXEL_TO_METERS(2000.0f), 0.f, 0.f, 0.0f);
+	planets[7] = new Body(8, PIXEL_TO_METERS(15000.0f), PIXEL_TO_METERS(-110000), PIXEL_TO_METERS(2000.0f), 0.f, 0.f, 0.0f);
+	planets[8] = new Body(8, PIXEL_TO_METERS(30000.f), PIXEL_TO_METERS(-90000), PIXEL_TO_METERS(2000.0f), 0.f, 0.f, 0.0f);
+	planets[9] = new Body(8, PIXEL_TO_METERS(45000.f), PIXEL_TO_METERS(-100000), PIXEL_TO_METERS(2000.0f), 0.f, 0.f, 0.0f);
+	planets[10] = new Body(8, PIXEL_TO_METERS(60000.f), PIXEL_TO_METERS(-110000), PIXEL_TO_METERS(2000.0f), 0.f, 0.f, 0.0f);
 }
 Physics::~Physics() {};
 
@@ -92,7 +92,6 @@ void Physics::Update(float dt)//step
 	aeroDrag();
 	calculateForces();
 	buoyancy();
-	checkMoonColision();
 
 	rocket->acceleration.x = rocket->force.x / rocket->mass;
 	rocket->acceleration.y = rocket->force.y / rocket->mass;
@@ -125,14 +124,9 @@ void Physics::Update(float dt)//step
 
 	
 	rocket->UpdateVertex();
-	for (int i = 0; i < 20; i++)
-	{
-		if (planets[i] != nullptr && i!=2)
-		{
-			Collide(rocket, planets[i]);
-		}
-			
-	}
+
+	Collide();
+
 	camera.x = rocket->center.x - (WINDOW_WIDTH / 2);
 	camera.y = rocket->center.y - (WINDOW_HEIGHT / 2);
 }
@@ -146,8 +140,10 @@ void Physics::Draw(SDL_Renderer* renderer)
 		{
 			planets[i]->Draw(renderer, camera, debugCollisions);
 			SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-			DrawfLine(renderer, camera, rocket->center, planets[i]->center);
+			if(i<2)
+				DrawfLine(renderer, camera, rocket->center, planets[i]->center);
 		}
+
 	}
 
 	atmos->Draw(renderer, camera, debugCollisions);
@@ -163,6 +159,13 @@ void Physics::Draw(SDL_Renderer* renderer)
 	SDL_RenderFillRect(renderer, &pos2);
 	SDL_Rect pos3 = { 50,WINDOW_HEIGHT - 50,10,10 };
 	SDL_RenderFillRect(renderer, &pos3);
+	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+	for (int i = 3; i < 11; i++)
+	{
+		float prop = WINDOW_HEIGHT * abs(planets[1]->center.y - planets[i]->center.y) / abs(planets[1]->center.y - planets[0]->center.y);
+		SDL_Rect pos1 = { 50,prop,10,10 };
+		SDL_RenderFillRect(renderer, &pos1);
+	}
 
 	SDL_Rect tex = { (rocket->center.x - camera.x - rocket->radius),(rocket->center.y - camera.y - rocket->radius), 2 * rocket->radius, 2 * rocket->radius };
 	//SDL_RenderCopy(renderer, textures[0], 0, &tex);
@@ -180,52 +183,48 @@ void Physics::Draw(SDL_Renderer* renderer)
 	SDL_RenderPresent(renderer);
 }
 
-void Physics::Collide(Body* b0, Body* b1)
+void Physics::Collide()
 {
-	//b0 = spaceship
 	for (int i = 0; i < 20; i++)
 	{
-		//b0 = rocket;
-		//b1 = planets[i];
-		if (b0 != nullptr && b1 != nullptr)
+		if (rocket != nullptr && planets[i] != nullptr && i!=2)
 		{
-			float dist = norm(b0->center, b1->center);
-			if (dist < (b0->radius + b1->radius))
+			float dist = norm(rocket->center, planets[i]->center);
+			if (dist < (rocket->radius + planets[i]->radius))
 			{
 				if (!moonLanded && !spaced)
 				{
 					rocket->velocity = { 0.f,0.f };
 				}
-				float vx = (rocket->center.x - b1->center.x) / dist;
-				float vy = (rocket->center.y - b1->center.y) / dist;
-				rocket->center.x = (b1->center.x + (b1->radius + rocket->radius) * cos(acos(vx)));
-				rocket->center.y = (b1->center.y + (b1->radius + rocket->radius) * sin(asin(vy)));
+				float vx = (rocket->center.x - planets[i]->center.x) / dist;
+				float vy = (rocket->center.y - planets[i]->center.y) / dist;
+				rocket->center.x = (planets[i]->center.x + (planets[i]->radius + rocket->radius) * cos(acos(vx)));
+				rocket->center.y = (planets[i]->center.y + (planets[i]->radius + rocket->radius) * sin(asin(vy)));
 
-				if (b1 == planets[1])
+				if (i == 1 && ((norm(rocket->velocity)) > 600))
 				{
-					moonLanded = true;
+					reset();
+					system("cls");
+					printf("Crash!\n");
 				}
-				else
+				float dist3 = norm(rocket->center, wincon->center);
+				if (dist3 < (rocket->radius + wincon->radius))
 				{
-					moonLanded = false;
+					reset();
+					system("cls");
+					printf("Win!\n");
 				}
-				if (moonLanded && !spaced)
+				if (i > 2)
 				{
-					rocket->velocity = { 0.f,0.f };
+					reset();
+					system("cls");
+					printf("Crashed!\n");
 				}
 			}
 		}
 	}
 }
 
-void Physics::OnCollision()
-{
-	
-}
-void Physics::secondLaw()
-{
-
-}
 void Physics::gravity()
 {
 	fPoint grav = { 0.f,0.f };
@@ -281,23 +280,19 @@ void Physics::buoyancy()
 		rocket->buo.y = 0;
 	}
 }
-void Physics::checkMoonColision()
-{
-	float dist = norm(rocket->center, planets[1]->center);
-	if ((dist < (rocket->radius + planets[1]->radius)) && (abs(norm(rocket->velocity)) > 600))
-	{
-		printf("crash");
-	}
-	float dist2 = norm(rocket->center, wincon->center);
-	if (dist2 < (rocket->radius + wincon->radius))
-	{
-		printf("win");
-	}
-}
 void Physics::calculateForces()
 {
 	rocket->xForces = rocket->gravity.x + rocket->impulse.x + rocket->dragForce.x + rocket->buo.x;
 	rocket->yForces = rocket->gravity.y + rocket->impulse.y + rocket->dragForce.y + rocket->buo.y;
 
 	rocket->force = { rocket->xForces,rocket->yForces };
+}
+void Physics::reset()
+{
+	rocket->center.x = PIXEL_TO_METERS(18000);
+	rocket->center.y = PIXEL_TO_METERS(30000);
+	rocket->velocity = { 0,0 };
+	rocket->acceleration = { 0,0 };
+	rocket->force = { 0,0 };
+
 }

@@ -102,19 +102,15 @@ public:
 
 	void Draw(SDL_Renderer* renderer);
 
-	void Collide(Body* b0, Body* b1);
+	void Collide();
 
-	void OnCollision();
-	void secondLaw();
 	void gravity();
 	void thirdLaw();
 	void calculateForces();
 	void motorImpulse(float dt);
-	void kinematicEnergy();
-	void potentialEnergy();
 	void aeroDrag();
 	void buoyancy();
-	void checkMoonColision();
+	void reset();
 	SDL_Rect posRect;
 
 	bool moonCrashed = false;
