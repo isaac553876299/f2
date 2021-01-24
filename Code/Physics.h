@@ -117,5 +117,7 @@ public:
 	bool moonCrashed = false;
 
 	bool moonLanded = false;
+	bool crashed = false;
+	bool landed = false;
 };
 #endif

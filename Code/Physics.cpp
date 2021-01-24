@@ -80,6 +80,7 @@ void Physics::Update(float dt)//step
 	aeroDrag();
 	calculateForces();
 	buoyancy();
+	checkMoonColision();
 
 	rocket->acceleration.x = rocket->force.x / rocket->mass;
 	rocket->acceleration.y = rocket->force.y / rocket->mass;
@@ -262,9 +263,24 @@ void Physics::buoyancy()
 void Physics::checkMoonColision()
 {
 	float dist = norm(rocket->center, planets[1]->center);
-	if (dist < moonCrash->radius + rocket->radius && rocket->velocity.x > 600 && rocket->velocity.y > 600)
+	if (dist < moonCrash->radius + rocket->radius && (rocket->velocity.y > -600))
 	{
-		SDL_Quit();
+
+		crashed = true;
+		printf("Crashed: %d\n", crashed);
+	}
+	else
+	{
+		crashed = false;
+	}
+	if (dist < moonCrash->radius + rocket->radius && (rocket->velocity.y < -600))
+	{
+		landed = true;
+		printf("Landed: %d\n", landed);
+	}
+	else
+	{
+		crashed = false;
 	}
 }
 void Physics::calculateForces()
